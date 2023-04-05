@@ -1,0 +1,82 @@
+:root {
+    --resWidthSize: 640px;
+    --resHeightSize: 360px;
+}
+
+body {
+    background-color: rgb(0, 102, 255) !important;
+}
+
+.object_id {
+    color: white;
+    font-size: 10px;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+li {
+    float: right;
+}
+
+li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+#top-logo {
+    text-align: center;
+    color: white;
+    margin-bottom: 50px;
+}
+
+#videoPreviewSection {
+    margin: auto;
+    width: 40%;
+    margin-bottom: 5%;
+    background-color: black;
+}
+
+.videobackground {
+    cursor: pointer;
+    width: auto;
+    height: 130px;
+}
+
+#selectForeground {
+    display: none;
+    margin-bottom: 20px;
+}
+
+#main-content-container {
+    margin: auto;
+}
+
+#upload-content-section {
+    box-shadow: 0px 2px 11px 1px rgba(0, 0, 0, 0.41);
+    -webkit-box-shadow: 0px 2px 11px 1px rgba(0, 0, 0, 0.41);
+    -moz-box-shadow: 0px 2px 11px 1px rgba(0, 0, 0, 0.41);
+    background-color: white;
+    width: 50%;
+    height: auto;
+    border-radius: calc(1 * 3px);
+
+    padding: 20px;
+    margin: auto;
+    margin-bottom: 5%;
+}
+
+#pexelsLink {
+    position: fixed;
+    bottom: 0px;
+    margin: auto;
+    width: auto;
+    height: 20px;
+}
