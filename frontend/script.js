@@ -19,14 +19,12 @@ const searchResultPictures = document.getElementById('selectAlbumCover');
 
 
 const initPexelsAPI = async (input) => {
-    const json = `{"result":"${input}"}`;
-    const body = JSON.parse(json);
-
     const proxyEndPoint = 'http://localhost:5500/api';
 
-    await fetch(`${proxyEndPoint}/v1/search?query=${input}&per_page=4`, {
+    // http://localhost:5500/api/v1/search?query=car
+    await fetch(`${proxyEndPoint}/v1/search?query=${input}&per_page=1`, {
         headers: {
-            Authorization: 'jZQuDCMfH0C4SXBUWbVhLFydTZkMR2Lsj2B7b3xnxkX65PgkTLxDQPH0',
+            'Authorization': 'jZQuDCMfH0C4SXBUWbVhLFydTZkMR2Lsj2B7b3xnxkX65PgkTLxDQPH0'
         }
     })
         .then(result => result.json())
