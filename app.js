@@ -6,7 +6,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const app = express();
 
 const pexels = require('pexels');
-// Create new API Key and store in .env
+// Create new API Key and store in .env file
 const client = pexels.createClient('jZQuDCMfH0C4SXBUWbVhLFydTZkMR2Lsj2B7b3xnxkX65PgkTLxDQPH0');
 
 const fs = require('fs');
@@ -21,31 +21,38 @@ app.use(express.static("frontend"));
 app.use(express.static(__dirname + '/script.js'));
 app.use(fileUpload());
 
-app.use('/search', createProxyMiddleware({
-    target: 'https://api.pexels.com/v1/search',
-    changeOrigin: true,
-    pathRewrite: {
-        '^/search': ''
-    },
-    onProxyRes: function (proxyRes, req, res) {
+app.get('/api/v1/search', (req, res) => {
+    const query = req.query.query;
+    console.log(query);
+});
 
-        proxyRes.headers['Access-Control-Allow-Origin'] = '*';
+// app.use('/api', createProxyMiddleware({
+//     target: 'https://api.pexels.com/v1/search',
+//     changeOrigin: true,
+//     pathRewrite: {
+//         '^/search': ''
+//     },
+//     onProxyRes: function (proxyRes, req, res) {
 
-        try {
-            let query = req.body.result;
-            console.log("query:", query);
-            client.photos.search({ query, orientation: "square", per_page: 4 }).then(result => {
-                console.log("Results:", result);
-                res.send(result);
+//         proxyRes.headers['Access-Control-Allow-Origin'] = '*';
+//         console.log(`ProxyResults: ${proxyRes}`);
 
-            });
-        } catch (error) {
-            console.error(error);
-        }
-    }
-}));
+//         try {
+//             let query = req.body.result;
+//             console.log("query:", query);
+//             client.photos.search({ query, orientation: "square", per_page: 4 }).then(result => {
+//                 console.log("Results:", result);
+//                 res.send(result);
+
+//             });
+//         } catch (error) {
+//             console.error(error);
+//         }
+//     }
+// }));
 
 // get the uploaded beat + cover picture and place it in /tmp/;
+
 app.post('/', (req, res) => {
     // let beatFile;
     // let beatCoverPicture;

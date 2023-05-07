@@ -6,7 +6,7 @@ form.addEventListener('keypress', (event) => {
 });
 
 
-const videoBackground = document.querySelectorAll(".videobackground");
+const videoBackground = document.querySelectorAll('.videobackground');
 videoBackground.forEach(element => {
     element.ondragstart = function () {
         return false;
@@ -22,10 +22,11 @@ const initPexelsAPI = async (input) => {
     const json = `{"result":"${input}"}`;
     const body = JSON.parse(json);
 
-    const proxyEndPoint = 'http://localhost:5500/search';
-    await fetch(`${proxyEndPoint}/v1/search?query=${input_searchForPicture.value}&per_page=4`, {
+    const proxyEndPoint = 'http://localhost:5500/api';
+
+    await fetch(`${proxyEndPoint}/v1/search?query=${input}&per_page=4`, {
         headers: {
-            Authorization: "jZQuDCMfH0C4SXBUWbVhLFydTZkMR2Lsj2B7b3xnxkX65PgkTLxDQPH0",
+            Authorization: 'jZQuDCMfH0C4SXBUWbVhLFydTZkMR2Lsj2B7b3xnxkX65PgkTLxDQPH0',
         }
     })
         .then(result => result.json())
@@ -39,7 +40,7 @@ const initPexelsAPI = async (input) => {
                 const pictureResultsDiv = document.getElementById('pictureSearchResults');
 
                 const column = document.createElement('div');
-                column.className = "col";
+                column.className = 'col';
                 const image = document.createElement('img');
                 image.src = data.photos[i].url;
 
@@ -47,7 +48,7 @@ const initPexelsAPI = async (input) => {
                 column.appendChild(image);
                 pictureResultsDiv.insertAdjacentElement('afterbegin', row);
             }
-        }).catch(err => console.error('Something went wrong bro.', err));
+        }).catch(err => console.error('😫😫', err));
 };
 
 input_searchForPicture.onfocus = function () {
