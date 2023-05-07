@@ -34,6 +34,7 @@ li a {
 #top-logo {
     text-align: center;
     color: white;
+    margin-top: 50px;
     margin-bottom: 50px;
 }
 
@@ -44,13 +45,12 @@ li a {
     background-color: black;
 }
 
-.videobackground {
+.pictureSearchResult {
     cursor: pointer;
     width: auto;
-    height: 130px;
 }
 
-#selectForeground {
+#selectAlbumCover {
     display: none;
     margin-bottom: 20px;
 }

@@ -16,5 +16,8 @@
     "fluent-ffmpeg": "^2.1.2",
     "nodemon": "^2.0.21",
     "pexels": "^1.4.0"
+  },
+  "devDependencies": {
+    "http-proxy-middleware": "^2.0.6"
   }
 }
