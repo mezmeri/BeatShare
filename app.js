@@ -6,6 +6,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const app = express();
 
 const pexels = require('pexels');
+// Create new API Key and store in .env
 const client = pexels.createClient('jZQuDCMfH0C4SXBUWbVhLFydTZkMR2Lsj2B7b3xnxkX65PgkTLxDQPH0');
 
 const fs = require('fs');
