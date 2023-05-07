@@ -1,29 +1,48 @@
-// Import express
 const express = require('express');
 const fileUpload = require('express-fileupload');
+
+const { createProxyMiddleware } = require('http-proxy-middleware');
+
 const app = express();
 
 const pexels = require('pexels');
+const client = pexels.createClient('jZQuDCMfH0C4SXBUWbVhLFydTZkMR2Lsj2B7b3xnxkX65PgkTLxDQPH0');
 
 const fs = require('fs');
 
 const ffmpeg = require('fluent-ffmpeg');
 
 const path = require('path');
-const { log } = require('console');
-
-// Load port
 const PORT = process.env.PORT || 5500;
 
 app.use(express.json());
 app.use(express.static("frontend"));
 app.use(express.static(__dirname + '/script.js'));
-app.use(express.static(__dirname + '/token.js'));
 app.use(fileUpload());
 
-app.get('/token', (req, res) => {
-    // call api from here?
-});
+app.use('/search', createProxyMiddleware({
+    target: 'https://api.pexels.com/v1/search',
+    changeOrigin: true,
+    pathRewrite: {
+        '^/search': ''
+    },
+    onProxyRes: function (proxyRes, req, res) {
+
+        proxyRes.headers['Access-Control-Allow-Origin'] = '*';
+
+        try {
+            let query = req.body.result;
+            console.log("query:", query);
+            client.photos.search({ query, orientation: "square", per_page: 4 }).then(result => {
+                console.log("Results:", result);
+                res.send(result);
+
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+}));
 
 // get the uploaded beat + cover picture and place it in /tmp/;
 app.post('/', (req, res) => {
