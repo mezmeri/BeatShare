@@ -1,5 +1,6 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
+const cors = require('cors');
 
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
@@ -20,23 +21,36 @@ app.use(express.json());
 app.use(express.static("frontend"));
 app.use(express.static(__dirname + '/script.js'));
 app.use(fileUpload());
+app.use(cors());
 
-app.get('/api/v1/search', (req, res, next) => {
-    const proxyURL = `http://localhost:5500${req.url}`;
-    console.log(query);
+const pexelsProxy = createProxyMiddleware({
+    target: 'https://api.pexels.com/v1/search',
+    auth: 'jZQuDCMfH0C4SXBUWbVhLFydTZkMR2Lsj2B7b3xnxkX65PgkTLxDQPH0',
+    changeOrigin: true,
+    pathRewrite: {
+        '^/api/v1': ''
+    },
+
+    onProxyReq: (proxyReq, req, res) => {
+        console.log("Request received");
+    },
+
+    onProxyRes: (proxyRes, req, res) => {
+        // proxyRes.headers['content-type'] = 'image/jpeg';
+        let query = req.query.query;
+        console.log('PROXY-RES HEADERS', proxyRes.headers);
+        client.photos.search({ query, per_page: 1 }).then(result => {
+            console.log(result);
+            res.json(result);
+        });
+    }
 });
 
-app.use('/api', createProxyMiddleware({
-    target: 'https://api.pexels.com/search',
-    changeOrigin: true,
-    onProxyReq(proxyReq, req, res) {
-        const query = req.query.query;
-        client.photos.search({ query, orientation: "square", per_page: 1 }).then(result => res.json(result));
-    },
-    onProxyRes(proxyRes, req, res) {
-        proxyRes.headers['Access-Control-Allow-Origin'] = '*';
-    }
-}));
+app.use('/api', pexelsProxy);
+
+app.get('/api/v1/', (req, res) => {
+
+});
 
 // app.use('/api', createProxyMiddleware({
 //     target: 'https://api.pexels.com/v1/search',
