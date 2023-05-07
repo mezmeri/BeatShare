@@ -25,9 +25,7 @@ app.get('/api/v1/search', (req, res) => {
     const query = req.query.query;
     console.log(query);
 
-    for (let i = 0; i > 5; i++) {
-        //something something
-    }
+    //deleted for loop
 });
 
 // app.use('/api', createProxyMiddleware({
