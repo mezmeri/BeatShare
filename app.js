@@ -24,7 +24,6 @@ app.use(fileUpload());
 app.get('/api/v1/search', (req, res) => {
     const query = req.query.query;
     console.log(query);
-    // oh yeah yeah
 });
 
 // app.use('/api', createProxyMiddleware({
