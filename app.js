@@ -23,7 +23,14 @@ app.use(cors({ origin: '*' }));
 
 app.post('/api/search', (req, res) => {
     let query = req.body.result;
-    client.photos.search({ query, orientation: "square", size: "medium", page: 1, per_page: 4 }).then(result => res.json(result));
+
+    client.photos.search({ query, orientation: "square", size: "medium", page: 212, per_page: 4 }).then(result => {
+        res.json(result);
+        //TODO: Get access to the total_result parameter to calculate a random number between x & y.
+        let totalPageNumber = result.total_results / 4;
+        console.log(totalPageNumber);
+        
+    });
 });
 
 // get the uploaded beat + cover picture and place it in /tmp/;
