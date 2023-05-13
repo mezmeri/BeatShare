@@ -21,38 +21,10 @@ app.use(express.static(__dirname + '/script.js'));
 app.use(fileUpload());
 app.use(cors({ origin: '*' }));
 
-const pexelsProxy = createProxyMiddleware({
-    target: 'https://api.pexels.com/v1/',
-    changeOrigin: true,
-    pathRewrite: {
-        '^/api/v1': ''
-    },
-    onProxyReq: (proxyReq, req, res) => {
-        console.log("onProxyReq called");
-    },
-
-    onProxyRes: (proxyRes, req, res) => {
-        console.log('onProxyRes called');
-
-        proxyRes.headers['access-control-allow-origin'] = '*';
-        console.log('ProxyRes Header:', res.getHeaders());
-    }
+app.post('/api/search', (req, res) => {
+    let query = req.body.result;
+    client.photos.search({ query, orientation: "square", size: "medium", page: 1, per_page: 4 }).then(result => res.json(result));
 });
-
-app.use('/api', pexelsProxy);
-
-// app.use('/api', createProxyMiddleware({
-//     target: 'https://api.pexels.com/v1/search',
-//     changeOrigin: true,
-//     pathRewrite: {
-//         '^/search': ''
-//     },
-//     onProxyRes: function (proxyRes, req, res) {
-
-//         proxyRes.headers['Access-Control-Allow-Origin'] = '*';
-//         console.log(`ProxyResults: ${proxyRes}`);
-//     }
-// }));
 
 // get the uploaded beat + cover picture and place it in /tmp/;
 
