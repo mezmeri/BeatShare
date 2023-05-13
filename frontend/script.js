@@ -17,17 +17,23 @@ const input_searchForPicture = document.getElementById('searchForPicture');
 const button_searchForPicture = document.getElementById('searchForPictureButton');
 const searchResultPictures = document.getElementById('selectAlbumCover');
 
-
 const initPexelsAPI = async (input) => {
-    const proxyEndPoint = 'http://localhost:5500/api';
+    const proxyEndPoint = 'http://localhost:5500';
+    let url = `${proxyEndPoint}/api/v1/search?query=${input}&orientation=square&per_page=4`;
 
-    // http://localhost:5500/api/v1/search?query=car
-    await fetch(`${proxyEndPoint}/v1/search?query=${input}&per_page=1`, {
+    await fetch(url, {
         headers: {
-            'Authorization': 'jZQuDCMfH0C4SXBUWbVhLFydTZkMR2Lsj2B7b3xnxkX65PgkTLxDQPH0'
-        }
+            'Authorization': 'jZQuDCMfH0C4SXBUWbVhLFydTZkMR2Lsj2B7b3xnxkX65PgkTLxDQPH0',
+        },
     })
-        .then(result => result.json())
+        .then(result => {
+            if (result.ok) {
+                searchResultPictures.style.display = 'block';
+                return result.json();
+            } else {
+                throw new Error('Status did not return with 2XX.');
+            }
+        })
         .then(data => {
             console.log(data);
             const row = document.createElement('div');
@@ -39,14 +45,18 @@ const initPexelsAPI = async (input) => {
 
                 const column = document.createElement('div');
                 column.className = 'col';
+
                 const image = document.createElement('img');
-                image.src = data.photos[i].url;
+
+                image.src = data.photos[i].src.original;
+                image.alt = data.photos[i].alt;
 
                 row.appendChild(column);
                 column.appendChild(image);
                 pictureResultsDiv.insertAdjacentElement('afterbegin', row);
             }
-        }).catch(err => console.error('😫😫', err));
+        }).catch(err => console.error('😫😫', err)
+        );
 };
 
 input_searchForPicture.onfocus = function () {
@@ -54,7 +64,6 @@ input_searchForPicture.onfocus = function () {
         if (event.key === 'Enter') {
             input_searchForPicture.blur();
             button_searchForPicture.focus();
-            searchResultPictures.style.display = 'block';
 
             initPexelsAPI(input_searchForPicture.value);
         }

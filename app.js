@@ -6,10 +6,6 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const app = express();
 
-const pexels = require('pexels');
-// Create new API Key and store in .env file
-const client = pexels.createClient('jZQuDCMfH0C4SXBUWbVhLFydTZkMR2Lsj2B7b3xnxkX65PgkTLxDQPH0');
-
 const fs = require('fs');
 
 const ffmpeg = require('fluent-ffmpeg');
@@ -21,36 +17,27 @@ app.use(express.json());
 app.use(express.static("frontend"));
 app.use(express.static(__dirname + '/script.js'));
 app.use(fileUpload());
-app.use(cors());
+app.use(cors({ origin: '*' }));
 
 const pexelsProxy = createProxyMiddleware({
-    target: 'https://api.pexels.com/v1/search',
-    auth: 'jZQuDCMfH0C4SXBUWbVhLFydTZkMR2Lsj2B7b3xnxkX65PgkTLxDQPH0',
+    target: 'https://api.pexels.com/v1/',
     changeOrigin: true,
     pathRewrite: {
         '^/api/v1': ''
     },
-
     onProxyReq: (proxyReq, req, res) => {
-        console.log("Request received");
+        console.log("onProxyReq called");
     },
 
     onProxyRes: (proxyRes, req, res) => {
-        // proxyRes.headers['content-type'] = 'image/jpeg';
-        let query = req.query.query;
-        console.log('PROXY-RES HEADERS', proxyRes.headers);
-        client.photos.search({ query, per_page: 1 }).then(result => {
-            console.log(result);
-            res.json(result);
-        });
+        console.log('onProxyRes called');
+
+        proxyRes.headers['access-control-allow-origin'] = '*';
+        console.log('ProxyRes Header:', res.getHeaders());
     }
 });
 
 app.use('/api', pexelsProxy);
-
-app.get('/api/v1/', (req, res) => {
-
-});
 
 // app.use('/api', createProxyMiddleware({
 //     target: 'https://api.pexels.com/v1/search',
@@ -67,31 +54,31 @@ app.get('/api/v1/', (req, res) => {
 
 // get the uploaded beat + cover picture and place it in /tmp/;
 
-app.post('/', (req, res) => {
-    // let beatFile;
-    // let beatCoverPicture;
-    // let uploadPath_beatFile;
-    // let uploadPath_beatCoverPicture;
+// app.post('/', (req, res) => {
+//     // let beatFile;
+//     // let beatCoverPicture;
+//     // let uploadPath_beatFile;
+//     // let uploadPath_beatCoverPicture;
 
-    // beatFile = req.files.beatFile;
-    // // beatCoverPicture = req.files.beatCoverPicture;
+//     // beatFile = req.files.beatFile;
+//     // // beatCoverPicture = req.files.beatCoverPicture;
 
-    // uploadPath_beatFile = path.normalize(__dirname + '/tmp/' + beatFile.name);
-    // // uploadPath_beatCoverPicture = path.normalize(__dirname + '/tmp/' + beatCoverPicture.name);
+//     // uploadPath_beatFile = path.normalize(__dirname + '/tmp/' + beatFile.name);
+//     // // uploadPath_beatCoverPicture = path.normalize(__dirname + '/tmp/' + beatCoverPicture.name);
 
-    // // beatFile.mv(uploadPath_beatFile, (err) => {
-    // //     if (err) return res.status(500).send(err);
-    // // });
+//     // // beatFile.mv(uploadPath_beatFile, (err) => {
+//     // //     if (err) return res.status(500).send(err);
+//     // // });
 
-    // // beatCoverPicture.mv(uploadPath_beatCoverPicture, (err) => {
-    // //     if (err) return res.status(500).send(err);
-    // // });
+//     // // beatCoverPicture.mv(uploadPath_beatCoverPicture, (err) => {
+//     // //     if (err) return res.status(500).send(err);
+//     // // });
 
-    // res.status(204).send();
+//     // res.status(204).send();
 
-    // return createVideo(uploadPath_beatFile, uploadPath_beatCoverPicture);
+//     // return createVideo(uploadPath_beatFile, uploadPath_beatCoverPicture);
 
-});
+// });
 
 function createVideo(beat, backgroundPicture) {
 
