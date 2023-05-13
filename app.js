@@ -1,6 +1,8 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const cors = require('cors');
+const pexels = require('pexels');
+const client = pexels.createClient('jZQuDCMfH0C4SXBUWbVhLFydTZkMR2Lsj2B7b3xnxkX65PgkTLxDQPH0');
 
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
