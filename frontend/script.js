@@ -16,16 +16,22 @@ videoBackground.forEach(element => {
 const input_searchForPicture = document.getElementById('searchForPicture');
 const button_searchForPicture = document.getElementById('searchForPictureButton');
 const searchResultPictures = document.getElementById('selectAlbumCover');
+const searchAPIArea = document.getElementById('searchPictureAPI');
 
 
 const initPexelsAPI = async (input) => {
-    const proxyEndPoint = 'http://localhost:5500/api';
+    const url = 'http://localhost:5500/api/search';
 
-    // http://localhost:5500/api/v1/search?query=car
-    await fetch(`${proxyEndPoint}/v1/search?query=${input}&per_page=1`, {
+    const json = `{"result":"${input}"}`;
+    const body = JSON.parse(json);
+
+
+    await fetch(url, {
+        method: 'POST',
         headers: {
-            'Authorization': 'jZQuDCMfH0C4SXBUWbVhLFydTZkMR2Lsj2B7b3xnxkX65PgkTLxDQPH0'
-        }
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
     })
         .then(result => result.json())
         .then(data => {
@@ -33,14 +39,29 @@ const initPexelsAPI = async (input) => {
             const row = document.createElement('div');
             row.className = "row";
 
+            if (data.total_results > 0) {
+                searchResultPictures.style.display = 'block';
+            }
+
+            if (data.total_results === 0) {
+                const p = document.createElement('p');
+                p.innerText = "No pictures with the specific filters could be found. try again.";
+
+                const div = document.createElement('div');
+                div.appendChild(p);
+                searchAPIArea.appendChild(div);
+                searchAPIArea.insertAdjacentElement('afterend', div);
+            }
+
             for (let i = 0; i < data.photos.length; i++) {
-                // Current hidden div
                 const pictureResultsDiv = document.getElementById('pictureSearchResults');
 
                 const column = document.createElement('div');
                 column.className = 'col';
                 const image = document.createElement('img');
-                image.src = data.photos[i].url;
+                image.src = data.photos[i].src.large;
+                image.alt = data.photos[i].alt;
+                image.className = "pictureResult";
 
                 row.appendChild(column);
                 column.appendChild(image);
@@ -54,8 +75,6 @@ input_searchForPicture.onfocus = function () {
         if (event.key === 'Enter') {
             input_searchForPicture.blur();
             button_searchForPicture.focus();
-            searchResultPictures.style.display = 'block';
-
             initPexelsAPI(input_searchForPicture.value);
         }
     });

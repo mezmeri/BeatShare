@@ -45,11 +45,6 @@ li a {
     background-color: black;
 }
 
-.pictureSearchResult {
-    cursor: pointer;
-    width: auto;
-}
-
 #selectAlbumCover {
     display: none;
     margin-bottom: 20px;
@@ -79,4 +74,9 @@ li a {
     margin: auto;
     width: auto;
     height: 20px;
+}
+
+.pictureResult {
+    width: 100%;
+    cursor: pointer;
 }
