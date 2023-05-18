@@ -3,34 +3,49 @@ const fileUpload = require('express-fileupload');
 const cors = require('cors');
 const pexels = require('pexels');
 const client = pexels.createClient('jZQuDCMfH0C4SXBUWbVhLFydTZkMR2Lsj2B7b3xnxkX65PgkTLxDQPH0');
-
-const { createProxyMiddleware } = require('http-proxy-middleware');
-
 const app = express();
-
 const fs = require('fs');
-
-const ffmpeg = require('fluent-ffmpeg');
-
+const axios = require('axios');
 const path = require('path');
+const ffmpeg = require('fluent-ffmpeg');
 const PORT = process.env.PORT || 5500;
 
 app.use(express.json());
 app.use(express.static("frontend"));
 app.use(express.static(__dirname + '/script.js'));
 app.use(fileUpload());
-app.use(cors({ origin: '*' }));
+app.use(cors());
 
 app.post('/api/search', (req, res) => {
     let query = req.body.result;
 
-    client.photos.search({ query, orientation: "square", size: "medium", page: 212, per_page: 4 }).then(result => {
+    client.photos.search({ query, orientation: "square", size: "medium", per_page: 4 }).then(result => {
         res.json(result);
-        //TODO: Get access to the total_result parameter to calculate a random number between x & y.
-        let totalPageNumber = result.total_results / 4;
-        console.log(totalPageNumber);
-        
+
     });
+});
+
+
+async function downloadImage(url) {
+    try {
+        const response = await axios.get(url, { responseType: 'arraybuffer' });
+        const imageBuffer = Buffer.from(response.data, 'binary');
+
+        const fileName = `image.jpg`;
+
+        const filePath = path.normalize(__dirname + 'tmp', fileName);
+        fs.writeFileSync(filePath, imageBuffer);
+
+        console.log(`Successfully stored image in /tmp.`);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+app.post('/submit', (req, res) => {
+    let pictureURL = req.body.picture_data;
+
+    downloadImage(pictureURL);
 });
 
 // get the uploaded beat + cover picture and place it in /tmp/;

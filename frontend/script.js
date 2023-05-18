@@ -5,14 +5,6 @@ form.addEventListener('keypress', (event) => {
     }
 });
 
-
-const videoBackground = document.querySelectorAll('.videobackground');
-videoBackground.forEach(element => {
-    element.ondragstart = function () {
-        return false;
-    };
-});
-
 const input_searchForPicture = document.getElementById('searchForPicture');
 const button_searchForPicture = document.getElementById('searchForPictureButton');
 const searchResultPictures = document.getElementById('selectAlbumCover');
@@ -35,7 +27,6 @@ const initPexelsAPI = async (input) => {
     })
         .then(result => result.json())
         .then(data => {
-            console.log(data);
             const row = document.createElement('div');
             row.className = "row";
 
@@ -45,7 +36,7 @@ const initPexelsAPI = async (input) => {
 
             if (data.total_results === 0) {
                 const p = document.createElement('p');
-                p.innerText = "No pictures with the specific filters could be found. try again.";
+                p.innerText = "There's no pictures that matches your search word.";
 
                 const div = document.createElement('div');
                 div.appendChild(p);
@@ -60,9 +51,9 @@ const initPexelsAPI = async (input) => {
                 column.className = 'col';
 
                 const image = document.createElement('img');
+                image.className = "pictureResult";
                 image.src = data.photos[i].src.large;
                 image.alt = data.photos[i].alt;
-                image.className = "pictureResult";
 
                 row.appendChild(column);
                 column.appendChild(image);
@@ -70,7 +61,44 @@ const initPexelsAPI = async (input) => {
             }
         }).catch(err => console.error('😫😫', err)
         );
+
+    getSelectedImageData();
 };
+
+function getSelectedImageData() {
+    let pictureURLStorage = [];
+    let imageContainer = document.getElementById('pictureSearchResults');
+    imageContainer.addEventListener('click', function (event) {
+        let pictureData = event.target.currentSrc;
+        if (event.target.className === 'pictureResult') {
+            // Only one picture should be stored, so before we insert the image into the array it checks if there already is a picture in there.
+            if (pictureURLStorage.length > 0) {
+                pictureURLStorage.splice(0, 1);
+                pictureURLStorage.push(pictureData);
+            } else {
+                pictureURLStorage.push(pictureData);
+            }
+        }
+        sendDataToBackend(pictureURLStorage);
+    });
+}
+
+async function sendDataToBackend(data) {
+    console.log(data);
+    let url = 'http://localhost:5500/submit';
+    const json = `{"picture_data":"${data}"}`;
+    const body = JSON.parse(json);
+
+    console.log(body);
+
+    await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body),
+    });
+}
 
 input_searchForPicture.onfocus = function () {
     input_searchForPicture.addEventListener('keypress', (event) => {
