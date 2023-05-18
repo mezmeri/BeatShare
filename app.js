@@ -26,14 +26,15 @@ app.post('/api/search', (req, res) => {
 });
 
 
-async function downloadImage(url) {
+async function downloadImage (url) {
     try {
         const response = await axios.get(url, { responseType: 'arraybuffer' });
         const imageBuffer = Buffer.from(response.data, 'binary');
+        console.log(imageBuffer);
 
         const fileName = `image.jpg`;
 
-        const filePath = path.normalize(__dirname + 'tmp', fileName);
+        const filePath = path.join(__dirname + '/tmp', fileName);
         fs.writeFileSync(filePath, imageBuffer);
 
         console.log(`Successfully stored image in /tmp.`);
@@ -76,7 +77,7 @@ app.post('/submit', (req, res) => {
 
 // });
 
-function createVideo(beat, backgroundPicture) {
+function createVideo (beat, backgroundPicture) {
 
     let video = ffmpeg()
         .on('start', () => { console.log('Upload has started'); })
