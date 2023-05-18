@@ -65,7 +65,7 @@ const initPexelsAPI = async (input) => {
     getSelectedImageData();
 };
 
-function getSelectedImageData() {
+function getSelectedImageData () {
     let pictureURLStorage = [];
     let imageContainer = document.getElementById('pictureSearchResults');
     imageContainer.addEventListener('click', function (event) {
@@ -79,11 +79,13 @@ function getSelectedImageData() {
                 pictureURLStorage.push(pictureData);
             }
         }
+
+
         sendDataToBackend(pictureURLStorage);
     });
 }
 
-async function sendDataToBackend(data) {
+async function sendDataToBackend (data) {
     console.log(data);
     let url = 'http://localhost:5500/submit';
     const json = `{"picture_data":"${data}"}`;

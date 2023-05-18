@@ -8,6 +8,7 @@ const fs = require('fs');
 const axios = require('axios');
 const path = require('path');
 const ffmpeg = require('fluent-ffmpeg');
+const crypto = require('crypto');
 const PORT = process.env.PORT || 5500;
 
 app.use(express.json());
@@ -15,6 +16,10 @@ app.use(express.static("frontend"));
 app.use(express.static(__dirname + '/script.js'));
 app.use(fileUpload());
 app.use(cors());
+
+app.post('/', (req, res) => {
+
+});
 
 app.post('/api/search', (req, res) => {
     let query = req.body.result;
@@ -25,14 +30,12 @@ app.post('/api/search', (req, res) => {
     });
 });
 
-
 async function downloadImage (url) {
     try {
         const response = await axios.get(url, { responseType: 'arraybuffer' });
         const imageBuffer = Buffer.from(response.data, 'binary');
-        console.log(imageBuffer);
 
-        const fileName = `image.jpg`;
+        const fileName = `img_${crypto.randomUUID()}.jpg`;
 
         const filePath = path.join(__dirname + '/tmp', fileName);
         fs.writeFileSync(filePath, imageBuffer);
