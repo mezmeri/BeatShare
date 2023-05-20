@@ -26,17 +26,26 @@ app.post('/api/search', (req, res) => {
     });
 });
 
+async function generatePictureFileNameUUID () {
+    return new Promise((resolve, rejected) => {
+        const fileName = `img_${crypto.randomUUID()}.jpg`;
+        resolve(fileName);
+        rejected('File name could not be generated.');
+    });
+}
+
 async function downloadImage (url) {
     try {
+        let fileName;
         const response = await axios.get(url, { responseType: 'arraybuffer' });
         const imageBuffer = Buffer.from(response.data, 'binary');
 
-        const fileName = `img_${crypto.randomUUID()}.jpg`;
+        fileName = await generatePictureFileNameUUID();
+        const filePath = path.join(__dirname + '/tmp' + fileName);
+        fs.writeFileSync(filePath, imageBuffer);
 
-        const filePath = path.join(__dirname + '/tmp', fileName);
-        return fs.writeFileSync(filePath, imageBuffer);
+        return fileName;
 
-        console.log(`Successfully stored image in /tmp.`);
     } catch (error) {
         console.error(error);
     }
@@ -44,30 +53,24 @@ async function downloadImage (url) {
 
 app.post('/', (req, res) => {
     console.log('upload has started');
-    let pictureURL = req.body.picture_data;
+    let pictureURL;
     let beat;
-    let uploadPath_beat;
-    let uploadPath_picture;
+    let beat_filePath;
+    let picture_filePath;
+
+    pictureURL = req.body.picture_data;
+    console.log("_ID of picture:");
 
     beat = req.files.beatFile;
+    beat_filePath = path.normalize(__dirname + '/tmp/' + beat.name);
 
-    const waitForImageToDownload = new Promise((res, rej) => {
-        downloadImage(pictureURL);
-        res({
-
-        });
-    });
-
-    uploadPath_beat = path.normalize(__dirname + '/tmp/' + beat.name);
-
-    beat.mv(uploadPath_beat, (err) => {
+    beat.mv(beat_filePath, (err) => {
         if (err) return res.status(500).send(err);
     });
 
     res.status(204).send();
 
-    return createVideo(uploadPath_beat, uploadPath_picture);
-
+    return createVideo(beat_filePath, picture_filePath);
 });
 
 function createVideo (beat, backgroundPicture) {

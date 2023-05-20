@@ -80,28 +80,27 @@ function getSelectedImageData () {
             }
         }
 
-
-        sendDataToBackend(pictureURLStorage);
     });
+
+    bufferDataToBackend(pictureURLStorage);
 }
 
-async function sendDataToBackend (data) {
-    console.log(data);
-    let url = 'http://localhost:5500';
-    const json = `{"picture_data":"${data}"}`;
-    const body = JSON.parse(json);
-
-    console.log(body);
-
-    await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body),
+async function bufferDataToBackend (data) {
+    form.addEventListener('submit', async sendDataToBackend => {
+        let url = 'http://localhost:5500';
+        const json = `{"picture_data":"${data}"}`;
+        const body = JSON.parse(json);
+        await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body),
+        });
     });
-}
+};
 
+// pressing enter in the search bar starts the API call
 input_searchForPicture.onfocus = function () {
     input_searchForPicture.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
