@@ -26,11 +26,14 @@ app.post('/api/search', (req, res) => {
     });
 });
 
-async function generatePictureFileNameUUID () {
-    return new Promise((resolve, rejected) => {
+function generatePictureFileNameUUID () {
+    return new Promise((resolve, reject) => {
         const fileName = `img_${crypto.randomUUID()}.jpg`;
-        resolve(fileName);
-        rejected('File name could not be generated.');
+        if (fileName) {
+            resolve(fileName);
+        } else {
+            reject('File name could not be generated.');
+        }
     });
 }
 
@@ -41,7 +44,7 @@ async function downloadImage (url) {
         const imageBuffer = Buffer.from(response.data, 'binary');
 
         fileName = await generatePictureFileNameUUID();
-        const filePath = path.join(__dirname + '/tmp' + fileName);
+        const filePath = path.join(__dirname + '/tmp/' + fileName);
         fs.writeFileSync(filePath, imageBuffer);
 
         return fileName;
@@ -51,15 +54,19 @@ async function downloadImage (url) {
     }
 }
 
-app.post('/', (req, res) => {
-    console.log('upload has started');
-    let pictureURL;
+app.post('/', async (req, res) => {
+    console.log('Upload has started');
+    imageURL = req.body.picture_data;
+    let image_filePath;
+    let imageTitle;
     let beat;
     let beat_filePath;
-    let picture_filePath;
 
-    pictureURL = req.body.picture_data;
-    console.log("_ID of picture:");
+    try {
+        imageTitle = await downloadImage(imageURL);
+    } catch (error) {
+        console.error(error);
+    }
 
     beat = req.files.beatFile;
     beat_filePath = path.normalize(__dirname + '/tmp/' + beat.name);
@@ -70,14 +77,14 @@ app.post('/', (req, res) => {
 
     res.status(204).send();
 
-    return createVideo(beat_filePath, picture_filePath);
+    return createVideo(beat_filePath, image_filePath);
 });
 
-function createVideo (beat, backgroundPicture) {
+function createVideo (beat, image) {
 
     let video = ffmpeg()
         .on('start', () => { console.log('Upload has started'); })
-        .addInput(backgroundPicture)
+        .addInput(image)
         .addInput(beat)
         .size('1920x1080')
         .autopad('black')
@@ -85,7 +92,7 @@ function createVideo (beat, backgroundPicture) {
         .on('end', () => {
             try {
                 fs.unlinkSync(beat);
-                fs.unlinkSync(backgroundPicture);
+                fs.unlinkSync(image);
 
                 console.log('Upload finished!');
             } catch (error) {
