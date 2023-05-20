@@ -17,10 +17,6 @@ app.use(express.static(__dirname + '/script.js'));
 app.use(fileUpload());
 app.use(cors());
 
-app.post('/', (req, res) => {
-
-});
-
 app.post('/api/search', (req, res) => {
     let query = req.body.result;
 
@@ -38,7 +34,7 @@ async function downloadImage (url) {
         const fileName = `img_${crypto.randomUUID()}.jpg`;
 
         const filePath = path.join(__dirname + '/tmp', fileName);
-        fs.writeFileSync(filePath, imageBuffer);
+        return fs.writeFileSync(filePath, imageBuffer);
 
         console.log(`Successfully stored image in /tmp.`);
     } catch (error) {
@@ -46,39 +42,33 @@ async function downloadImage (url) {
     }
 }
 
-app.post('/submit', (req, res) => {
+app.post('/', (req, res) => {
+    console.log('upload has started');
     let pictureURL = req.body.picture_data;
+    let beat;
+    let uploadPath_beat;
+    let uploadPath_picture;
 
-    downloadImage(pictureURL);
+    beat = req.files.beatFile;
+
+    const waitForImageToDownload = new Promise((res, rej) => {
+        downloadImage(pictureURL);
+        res({
+
+        });
+    });
+
+    uploadPath_beat = path.normalize(__dirname + '/tmp/' + beat.name);
+
+    beat.mv(uploadPath_beat, (err) => {
+        if (err) return res.status(500).send(err);
+    });
+
+    res.status(204).send();
+
+    return createVideo(uploadPath_beat, uploadPath_picture);
+
 });
-
-// get the uploaded beat + cover picture and place it in /tmp/;
-
-// app.post('/', (req, res) => {
-//     // let beatFile;
-//     // let beatCoverPicture;
-//     // let uploadPath_beatFile;
-//     // let uploadPath_beatCoverPicture;
-
-//     // beatFile = req.files.beatFile;
-//     // // beatCoverPicture = req.files.beatCoverPicture;
-
-//     // uploadPath_beatFile = path.normalize(__dirname + '/tmp/' + beatFile.name);
-//     // // uploadPath_beatCoverPicture = path.normalize(__dirname + '/tmp/' + beatCoverPicture.name);
-
-//     // // beatFile.mv(uploadPath_beatFile, (err) => {
-//     // //     if (err) return res.status(500).send(err);
-//     // // });
-
-//     // // beatCoverPicture.mv(uploadPath_beatCoverPicture, (err) => {
-//     // //     if (err) return res.status(500).send(err);
-//     // // });
-
-//     // res.status(204).send();
-
-//     // return createVideo(uploadPath_beatFile, uploadPath_beatCoverPicture);
-
-// });
 
 function createVideo (beat, backgroundPicture) {
 
@@ -103,28 +93,28 @@ function createVideo (beat, backgroundPicture) {
 }
 
 // Stream videofile
-app.get('/', (req, res) => {
-    const range = req.headers.range;
-    if (!range) {
-        res.status(400).send('error');
-    }
-    const videoPath = path.normalize(__dirname + '/tmp/' + 'output.mp4');
-    const videoSize = fs.statSync(videoPath).size;
-    const chunkSize = 10 ** 6;
+// app.get('/', (req, res) => {
+//     const range = req.headers.range;
+//     if (!range) {
+//         res.status(400).send('error');
+//     }
+//     const videoPath = path.normalize(__dirname + '/tmp/' + 'output.mp4');
+//     const videoSize = fs.statSync(videoPath).size;
+//     const chunkSize = 10 ** 6;
 
-    const start = Number(range.replace(/\D/g, ""));
-    const end = Math.min(start + chunkSize, videoSize - 1);
-    const contentLength = end - start + 1;
-    const headers = {
-        "Content-Range": `bytes ${start}-${end}/${videoSize}`,
-        "Accept-Range": 'bytes',
-        "Content-Length": contentLength,
-        "Content-Type": "video/mp4"
-    };
+//     const start = Number(range.replace(/\D/g, ""));
+//     const end = Math.min(start + chunkSize, videoSize - 1);
+//     const contentLength = end - start + 1;
+//     const headers = {
+//         "Content-Range": `bytes ${start}-${end}/${videoSize}`,
+//         "Accept-Range": 'bytes',
+//         "Content-Length": contentLength,
+//         "Content-Type": "video/mp4"
+//     };
 
-    res.writeHead(206, headers);
-    const videoStream = fs.createReadStream(videoPath, { start, end });
-    videoStream.pipe(res);
-});
+//     res.writeHead(206, headers);
+//     const videoStream = fs.createReadStream(videoPath, { start, end });
+//     videoStream.pipe(res);
+// });
 
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

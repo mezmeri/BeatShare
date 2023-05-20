@@ -87,7 +87,7 @@ function getSelectedImageData () {
 
 async function sendDataToBackend (data) {
     console.log(data);
-    let url = 'http://localhost:5500/submit';
+    let url = 'http://localhost:5500';
     const json = `{"picture_data":"${data}"}`;
     const body = JSON.parse(json);
 
