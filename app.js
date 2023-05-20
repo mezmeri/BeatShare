@@ -47,43 +47,33 @@ async function downloadImage (url) {
         const filePath = path.join(__dirname + '/tmp/' + fileName);
         fs.writeFileSync(filePath, imageBuffer);
 
-        return fileName;
+        return filePath;
 
     } catch (error) {
         console.error(error);
     }
 }
 
-app.post('/', async (req, res) => {
-    console.log('Upload has started');
-    imageURL = req.body.picture_data;
-    let image_filePath;
-    let imageTitle;
-    let beat;
-    let beat_filePath;
-
-    // Dev comment
-
-    try {
-        imageTitle = await downloadImage(imageURL);
-    } catch (error) {
-        console.error(error);
-    }
-
-    beat = req.files.beatFile;
-    beat_filePath = path.normalize(__dirname + '/tmp/' + beat.name);
-
-    beat.mv(beat_filePath, (err) => {
-        if (err) return res.status(500).send(err);
+function downloadBeat (file) {
+    let filePath = path.normalize(__dirname + '/tmp/' + file.name);
+    file.mv(filePath, (err) => {
+        console.log('Error moving file to filepath. ::', err);
     });
+
+    return filePath;
+}
+
+app.post('/', async (req, res) => {
+
+    let beatFilePath = downloadBeat(req.files.beatFile);
+    let imageFilePath = await downloadImage(req.body.picture_data);
 
     res.status(204).send();
 
-    return createVideo(beat_filePath, image_filePath);
+    return createVideo(beatFilePath, imageFilePath);
 });
 
 function createVideo (beat, image) {
-
     let video = ffmpeg()
         .on('start', () => { console.log('Upload has started'); })
         .addInput(image)
