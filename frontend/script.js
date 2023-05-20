@@ -87,17 +87,16 @@ function getSelectedImageData () {
     bufferDataToBackend(pictureURLSource);
 }
 
-async function bufferDataToBackend (source) {
+function bufferDataToBackend (source) {
     form.addEventListener('submit', async (sendDataToBackend) => {
         sendDataToBackend.preventDefault();
         let url = 'http://localhost:5500';
-        const formData = new FormData;
+        const formData = new FormData();
 
         const fileInput = document.getElementById('upload-beat-input');
         // formData.append('beatFile', fileInput.files[0]);
-        const json = `{"picture_data":"${source}"}`;
-        const body = JSON.parse(json);
-        formData.append('picture_data', body);
+        const json = JSON.stringify({ picture_data: source });
+        formData.append('picture_data', json);
 
         await fetch(url, {
             method: 'POST',

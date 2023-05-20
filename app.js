@@ -12,12 +12,12 @@ const crypto = require('crypto');
 const PORT = process.env.PORT || 5500;
 const bodyParser = require('body-parser');
 
-app.use(express.json());
 app.use(express.static("frontend"));
 app.use(express.static(__dirname + '/script.js'));
 app.use(fileUpload());
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.json());
 
 app.post('/api/search', (req, res) => {
     let query = req.body.result;
@@ -64,6 +64,7 @@ async function downloadBeat (file) {
 }
 
 app.post('/', async (req, res) => {
+    const { picture_data } = req.body;
     if (!req.files || !req.files.beatFile) {
         return res.status(400).send('No beat file uploaded.');
     }
@@ -72,7 +73,6 @@ app.post('/', async (req, res) => {
     let beatFilePath = await downloadBeat(req.files.beatFile);
     let imageFilePath = await downloadImage(req.body.picture_data);
 
-    console.log('imageFilePath:', imageFilePath);
 
     res.status(204).send();
 
