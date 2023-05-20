@@ -10,12 +10,14 @@ const path = require('path');
 const ffmpeg = require('fluent-ffmpeg');
 const crypto = require('crypto');
 const PORT = process.env.PORT || 5500;
+const bodyParser = require('body-parser');
 
 app.use(express.json());
 app.use(express.static("frontend"));
 app.use(express.static(__dirname + '/script.js'));
 app.use(fileUpload());
 app.use(cors());
+app.use(bodyParser.json());
 
 app.post('/api/search', (req, res) => {
     let query = req.body.result;
@@ -39,38 +41,42 @@ function generatePictureFileNameUUID () {
 
 async function downloadImage (url) {
     try {
-        let fileName;
         const response = await axios.get(url, { responseType: 'arraybuffer' });
         const imageBuffer = Buffer.from(response.data, 'binary');
 
-        fileName = await generatePictureFileNameUUID();
+        let fileName = await generatePictureFileNameUUID();
         const filePath = path.join(__dirname + '/tmp/' + fileName);
         fs.writeFileSync(filePath, imageBuffer);
 
         return filePath;
-
     } catch (error) {
         console.error(error);
     }
 }
 
-function downloadBeat (file) {
-    let filePath = path.normalize(__dirname + '/tmp/' + file.name);
+async function downloadBeat (file) {
+    const filePath = path.normalize(__dirname + '/tmp/' + file.name);
     file.mv(filePath, (err) => {
-        console.log('Error moving file to filepath. ::', err);
+        if (err) return res.status(500).send(err);
     });
 
     return filePath;
 }
 
 app.post('/', async (req, res) => {
+    if (!req.files || !req.files.beatFile) {
+        return res.status(400).send('No beat file uploaded.');
+    }
 
-    let beatFilePath = downloadBeat(req.files.beatFile);
+    console.log(req);
+    let beatFilePath = await downloadBeat(req.files.beatFile);
     let imageFilePath = await downloadImage(req.body.picture_data);
+
+    console.log('imageFilePath:', imageFilePath);
 
     res.status(204).send();
 
-    return createVideo(beatFilePath, imageFilePath);
+    // return createVideo(beatFilePath, imageFilePath);
 });
 
 function createVideo (beat, image) {

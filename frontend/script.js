@@ -66,37 +66,48 @@ const initPexelsAPI = async (input) => {
 };
 
 function getSelectedImageData () {
-    let pictureURLStorage = [];
+    let pictureURLSource = [];
+
     let imageContainer = document.getElementById('pictureSearchResults');
+
     imageContainer.addEventListener('click', function (event) {
         let pictureData = event.target.currentSrc;
         if (event.target.className === 'pictureResult') {
             // Only one picture should be stored, so before we insert the image into the array it checks if there already is a picture in there.
-            if (pictureURLStorage.length > 0) {
-                pictureURLStorage.splice(0, 1);
-                pictureURLStorage.push(pictureData);
+            if (pictureURLSource.length > 0) {
+                pictureURLSource.splice(0, 1);
+                pictureURLSource.push(pictureData);
             } else {
-                pictureURLStorage.push(pictureData);
+                pictureURLSource.push(pictureData);
             }
         }
 
     });
 
-    bufferDataToBackend(pictureURLStorage);
+    bufferDataToBackend(pictureURLSource);
 }
 
-async function bufferDataToBackend (data) {
-    form.addEventListener('submit', async sendDataToBackend => {
+async function bufferDataToBackend (source) {
+    form.addEventListener('submit', async (sendDataToBackend) => {
+        sendDataToBackend.preventDefault();
         let url = 'http://localhost:5500';
-        const json = `{"picture_data":"${data}"}`;
+        const formData = new FormData;
+
+        const fileInput = document.getElementById('upload-beat-input');
+        // formData.append('beatFile', fileInput.files[0]);
+        const json = `{"picture_data":"${source}"}`;
         const body = JSON.parse(json);
+        formData.append('picture_data', body);
+
         await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(body),
+            body: formData,
         });
+
+        console.log('Data sent!');
     });
 };
 
