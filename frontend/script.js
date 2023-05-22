@@ -57,9 +57,9 @@ const initPexelsAPI = async (input) => {
                 column.appendChild(image);
                 pictureResultsDiv.insertAdjacentElement('afterbegin', row);
             }
+            getSelectedImageData();
         }).catch(err => console.error('😫😫', err)
         );
-    getSelectedImageData();
 };
 
 function getSelectedImageData () {
@@ -107,10 +107,8 @@ async function dataToBackendBuffer (source) {
 
 form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    await getSelectedImageData().then(result => {
-        console.log('getSelectedImage() promise result:', result);
-        dataToBackendBuffer(result);
-    });
+    const url = await getSelectedImageData();
+    await dataToBackendBuffer(url);
 });
 
 // pressing enter in the search bar starts the API call
