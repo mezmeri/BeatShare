@@ -65,9 +65,10 @@ async function downloadBeat (file) {
 }
 
 app.post('/', async (req, res) => {
-    let beatFilePath = await downloadBeat(req.files.beatFile);
+    // let beatFilePath = await downloadBeat(req.files.beatFile);
     let imageFilePath = await downloadImage(req.body.picture_data);
 
+    console.log(req);
 
     res.status(204).send();
 

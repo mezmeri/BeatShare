@@ -59,31 +59,33 @@ const initPexelsAPI = async (input) => {
             }
         }).catch(err => console.error('😫😫', err)
         );
-
     getSelectedImageData();
 };
 
 function getSelectedImageData () {
-    let pictureURLSource = [];
+    return new Promise((resolve, reject) => {
+        let imageContainer = document.getElementById('pictureSearchResults');
+        let pictureURL = [];
 
-    let imageContainer = document.getElementById('pictureSearchResults');
+        imageContainer.addEventListener('click', function (event) {
+            let pictureDataSrc = event.target.currentSrc;
 
-    imageContainer.addEventListener('click', function (event) {
-        let pictureData = event.target.currentSrc;
-        if (event.target.className === 'pictureResult') {
-            // Only one picture should be stored, so before we insert the image into the array it checks if there already is a picture in there.
-            if (pictureURLSource.length > 0) {
-                pictureURLSource.splice(0, 1);
-                pictureURLSource.push(pictureData);
-            } else {
-                pictureURLSource.push(pictureData);
+            if (event.target.className === 'pictureResult') {
+                if (pictureURL.length > 0) {
+                    pictureURL.splice(0, 1);
+                    pictureURL.push(pictureDataSrc);
+                } else {
+                    pictureURL.push(pictureDataSrc);
+                }
+                console.log(pictureURL);
             }
-        }
+        });
+        resolve(pictureURL);
     });
-    return pictureURLSource;
 }
 
-async function bufferDataToBackend (source) {
+async function dataToBackendBuffer (source) {
+    console.log('dataToBackendBuffer', source);
     const formData = new FormData();
     formData.append('picture_data', source);
 
@@ -103,10 +105,12 @@ async function bufferDataToBackend (source) {
     }
 };
 
-form.addEventListener('submit', (event) => {
+form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const pictureURLSource = getSelectedImageData();
-    bufferDataToBackend(pictureURLSource);
+    await getSelectedImageData().then(result => {
+        console.log('getSelectedImage() promise result:', result);
+        dataToBackendBuffer(result);
+    });
 });
 
 // pressing enter in the search bar starts the API call
