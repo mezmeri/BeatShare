@@ -10,13 +10,11 @@ const button_searchForPicture = document.getElementById('searchForPictureButton'
 const searchResultPictures = document.getElementById('selectAlbumCover');
 const searchAPIArea = document.getElementById('searchPictureAPI');
 
-
 const initPexelsAPI = async (input) => {
     const url = 'http://localhost:5500/api/search';
 
     const json = `{"result":"${input}"}`;
     const body = JSON.parse(json);
-
 
     await fetch(url, {
         method: 'POST',
@@ -81,34 +79,35 @@ function getSelectedImageData () {
                 pictureURLSource.push(pictureData);
             }
         }
-
     });
-
-    bufferDataToBackend(pictureURLSource);
+    return pictureURLSource;
 }
 
-function bufferDataToBackend (source) {
-    form.addEventListener('submit', async (sendDataToBackend) => {
-        sendDataToBackend.preventDefault();
-        let url = 'http://localhost:5500';
-        const formData = new FormData();
+async function bufferDataToBackend (source) {
+    const formData = new FormData();
+    formData.append('picture_data', source);
 
-        const fileInput = document.getElementById('upload-beat-input');
-        // formData.append('beatFile', fileInput.files[0]);
-        const json = JSON.stringify({ picture_data: source });
-        formData.append('picture_data', json);
-
-        await fetch(url, {
+    try {
+        const response = await fetch('http://localhost:5500', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: formData,
         });
 
-        console.log('Data sent!');
-    });
+        if (!response.ok) {
+            console.error('Data sending failed:', response.status, response.statusText);
+        } else {
+            console.log('Data sent!');
+        }
+    } catch (error) {
+        console.error(error);
+    }
 };
+
+form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const pictureURLSource = getSelectedImageData();
+    bufferDataToBackend(pictureURLSource);
+});
 
 // pressing enter in the search bar starts the API call
 input_searchForPicture.onfocus = function () {

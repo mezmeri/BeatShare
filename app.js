@@ -11,6 +11,7 @@ const ffmpeg = require('fluent-ffmpeg');
 const crypto = require('crypto');
 const PORT = process.env.PORT || 5500;
 const bodyParser = require('body-parser');
+const multer = require('multer');
 
 app.use(express.static("frontend"));
 app.use(express.static(__dirname + '/script.js'));
@@ -64,12 +65,6 @@ async function downloadBeat (file) {
 }
 
 app.post('/', async (req, res) => {
-    const { picture_data } = req.body;
-    if (!req.files || !req.files.beatFile) {
-        return res.status(400).send('No beat file uploaded.');
-    }
-
-    console.log(req);
     let beatFilePath = await downloadBeat(req.files.beatFile);
     let imageFilePath = await downloadImage(req.body.picture_data);
 
