@@ -1,5 +1,3 @@
-// dev-env comment
-
 const form = document.getElementById('uploadForm');
 form.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
@@ -59,15 +57,14 @@ const initPexelsAPI = async (input) => {
                 column.appendChild(image);
                 pictureResultsDiv.insertAdjacentElement('afterbegin', row);
             }
-            getSelectedImageData();
         }).catch(err => console.error('😫😫', err)
         );
 };
 
 function getSelectedImageData() {
     return new Promise((resolve, reject) => {
-        let imageContainer = document.getElementById('pictureSearchResults');
         let pictureURL = [];
+        let imageContainer = document.getElementById('pictureSearchResults');
 
         imageContainer.addEventListener('click', function (event) {
             let pictureDataSrc = event.target.currentSrc;
@@ -79,14 +76,18 @@ function getSelectedImageData() {
                 } else {
                     pictureURL.push(pictureDataSrc);
                 }
-                console.log(pictureURL);
+                resolve(pictureURL);
             }
         });
-        resolve(pictureURL);
+        setTimeout(() => {
+            if (pictureURL.length === 0) {
+                reject(new Error('No picture selected'));
+            }
+        }, 2000);
     });
-}
+};
 
-async function dataToBackendBuffer(source) {
+async function sendDataToBackend(source) {
     console.log('dataToBackendBuffer', source);
     const formData = new FormData();
     formData.append('picture_data', source);
@@ -108,9 +109,13 @@ async function dataToBackendBuffer(source) {
 };
 
 form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const url = await getSelectedImageData();
-    await dataToBackendBuffer(url);
+    try {
+        event.preventDefault();
+        const url = await getSelectedImageData();
+        await sendDataToBackend(url);
+    } catch (error) {
+        console.error('🤷‍♀️🤷‍♀️', error);
+    }
 });
 
 // pressing enter in the search bar starts the API call
