@@ -1,3 +1,5 @@
+// dev-env comment
+
 const form = document.getElementById('uploadForm');
 form.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
@@ -62,7 +64,7 @@ const initPexelsAPI = async (input) => {
         );
 };
 
-function getSelectedImageData () {
+function getSelectedImageData() {
     return new Promise((resolve, reject) => {
         let imageContainer = document.getElementById('pictureSearchResults');
         let pictureURL = [];
@@ -84,7 +86,7 @@ function getSelectedImageData () {
     });
 }
 
-async function dataToBackendBuffer (source) {
+async function dataToBackendBuffer(source) {
     console.log('dataToBackendBuffer', source);
     const formData = new FormData();
     formData.append('picture_data', source);
