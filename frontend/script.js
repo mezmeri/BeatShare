@@ -78,10 +78,7 @@ pictureSearchResults.addEventListener('click', function (event) {
     }
 });
 
-
 function getSelectedImage (url) {
-    console.log('getSelectedImage', url);
-
     form.addEventListener('submit', (event) => {
         event.preventDefault();
         sendDataToBackend(url);
@@ -89,9 +86,10 @@ function getSelectedImage (url) {
 }
 
 async function sendDataToBackend (source) {
-    console.log('sendDataToBackend', source);
     const formData = new FormData();
+    const fileInput = document.getElementById('upload-beat-input');
     formData.append('picture_data', source);
+    formData.append('beatFile', fileInput.files[0]);
 
     try {
         const response = await fetch('http://localhost:5500', {

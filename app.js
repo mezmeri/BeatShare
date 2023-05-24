@@ -31,7 +31,7 @@ app.post('/api/search', (req, res) => {
 
 function generatePictureFileNameUUID () {
     return new Promise((resolve, reject) => {
-        const fileName = `img_${crypto.randomUUID()}.jpg`;
+        const fileName = `img-${crypto.randomUUID()}.jpg`;
         if (fileName) {
             resolve(fileName);
         } else {
@@ -65,14 +65,14 @@ async function downloadBeat (file) {
 }
 
 app.post('/', async (req, res) => {
-    // let beatFilePath = await downloadBeat(req.files.beatFile);
+    let beatFilePath = await downloadBeat(req.files.beatFile);
     let imageFilePath = await downloadImage(req.body.picture_data);
 
     console.log(req);
 
     res.status(204).send();
 
-    // return createVideo(beatFilePath, imageFilePath);
+    return createVideo(beatFilePath, imageFilePath);
 });
 
 function createVideo (beat, image) {
