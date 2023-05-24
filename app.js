@@ -23,13 +23,13 @@ app.use(express.json());
 app.post('/api/search', (req, res) => {
     let query = req.body.result;
 
-    client.photos.search({ query, orientation: "square", size: "medium", per_page: 4 }).then(result => {
+    client.photos.search({ query, orientation: "square", size: "large", per_page: 4 }).then(result => {
         res.json(result);
 
     });
 });
 
-function generatePictureFileNameUUID () {
+function generatePictureFileNameUUID() {
     return new Promise((resolve, reject) => {
         const fileName = `img-${crypto.randomUUID()}.jpg`;
         if (fileName) {
@@ -40,7 +40,7 @@ function generatePictureFileNameUUID () {
     });
 }
 
-async function downloadImage (url) {
+async function downloadImage(url) {
     try {
         const response = await axios.get(url, { responseType: 'arraybuffer' });
         const imageBuffer = Buffer.from(response.data, 'binary');
@@ -55,7 +55,7 @@ async function downloadImage (url) {
     }
 }
 
-async function downloadBeat (file) {
+async function downloadBeat(file) {
     const filePath = path.normalize(__dirname + '/tmp/' + file.name);
     file.mv(filePath, (err) => {
         if (err) return res.status(500).send(err);
@@ -75,7 +75,7 @@ app.post('/', async (req, res) => {
     return createVideo(beatFilePath, imageFilePath);
 });
 
-function createVideo (beat, image) {
+function createVideo(beat, image) {
     let video = ffmpeg()
         .on('start', () => { console.log('Upload has started'); })
         .addInput(image)

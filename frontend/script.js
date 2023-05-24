@@ -25,21 +25,22 @@ const initPexelsAPI = async (input) => {
     })
         .then(result => result.json())
         .then(data => {
+            // TODO: Make a separate function for the picture generation
             const row = document.createElement('div');
             row.className = "row";
 
-            if (data.total_results > 0) {
-                searchResultPictures.style.display = 'block';
-            }
-
             if (data.total_results === 0) {
-                const p = document.createElement('p');
-                p.innerText = "There's no pictures that matches your search word.";
+                const noPictureErr = document.createElement('p');
+                noPictureErr.innerText = "There's no pictures that matches your search word.";
 
                 const div = document.createElement('div');
-                div.appendChild(p);
+                div.appendChild(noPictureErr);
                 searchAPIArea.appendChild(div);
                 searchAPIArea.insertAdjacentElement('afterend', div);
+            }
+
+            if (data.total_results > 0) {
+                searchResultPictures.style.display = 'block';
             }
 
             for (let i = 0; i < data.photos.length; i++) {
@@ -61,6 +62,15 @@ const initPexelsAPI = async (input) => {
         );
 };
 
+function highlightSelectedImage(source) {
+    const videoPreviewSection = document.getElementById('videoPreviewSection');
+    let image = document.createElement('img');
+    image.src = source;
+    image.id = 'imagepreview';
+
+    videoPreviewSection.appendChild(image);
+}
+
 const pictureSearchResults = document.getElementById('pictureSearchResults');
 pictureSearchResults.addEventListener('click', function (event) {
     let pictureURL = [];
@@ -73,19 +83,28 @@ pictureSearchResults.addEventListener('click', function (event) {
         } else {
             pictureURL.push(pictureDataSrc);
         }
-        console.log(pictureURL);
+        highlightSelectedImage(pictureURL);
         return getSelectedImage(pictureURL);
     }
 });
 
-function getSelectedImage (url) {
+function getSelectedImage(url) {
+    urlArray = [url];
+
+    if (urlArray.length > 0) {
+        urlArray.splice(0, 1);
+        urlArray.push(url);
+    } else {
+        urlArray.push(url);
+    }
+
     form.addEventListener('submit', (event) => {
         event.preventDefault();
-        sendDataToBackend(url);
+        sendDataToBackend(urlArray);
     });
 }
 
-async function sendDataToBackend (source) {
+async function sendDataToBackend(source) {
     const formData = new FormData();
     const fileInput = document.getElementById('upload-beat-input');
     formData.append('picture_data', source);
