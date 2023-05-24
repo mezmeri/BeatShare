@@ -61,34 +61,35 @@ const initPexelsAPI = async (input) => {
         );
 };
 
-function getSelectedImageData() {
-    return new Promise((resolve, reject) => {
-        let pictureURL = [];
-        let imageContainer = document.getElementById('pictureSearchResults');
+const pictureSearchResults = document.getElementById('pictureSearchResults');
+pictureSearchResults.addEventListener('click', function (event) {
+    let pictureURL = [];
+    let pictureDataSrc = event.target.currentSrc;
 
-        imageContainer.addEventListener('click', function (event) {
-            let pictureDataSrc = event.target.currentSrc;
+    if (event.target.className === 'pictureResult') {
+        if (pictureURL.length > 0) {
+            pictureURL.splice(0, 1);
+            pictureURL.push(pictureDataSrc);
+        } else {
+            pictureURL.push(pictureDataSrc);
+        }
+        console.log(pictureURL);
+        return getSelectedImage(pictureURL);
+    }
+});
 
-            if (event.target.className === 'pictureResult') {
-                if (pictureURL.length > 0) {
-                    pictureURL.splice(0, 1);
-                    pictureURL.push(pictureDataSrc);
-                } else {
-                    pictureURL.push(pictureDataSrc);
-                }
-                resolve(pictureURL);
-            }
-        });
-        setTimeout(() => {
-            if (pictureURL.length === 0) {
-                reject(new Error('No picture selected'));
-            }
-        }, 2000);
+
+function getSelectedImage (url) {
+    console.log('getSelectedImage', url);
+
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        sendDataToBackend(url);
     });
-};
+}
 
-async function sendDataToBackend(source) {
-    console.log('dataToBackendBuffer', source);
+async function sendDataToBackend (source) {
+    console.log('sendDataToBackend', source);
     const formData = new FormData();
     formData.append('picture_data', source);
 
@@ -107,16 +108,6 @@ async function sendDataToBackend(source) {
         console.error(error);
     }
 };
-
-form.addEventListener('submit', async (event) => {
-    try {
-        event.preventDefault();
-        const url = await getSelectedImageData();
-        await sendDataToBackend(url);
-    } catch (error) {
-        console.error('🤷‍♀️🤷‍♀️', error);
-    }
-});
 
 // pressing enter in the search bar starts the API call
 input_searchForPicture.onfocus = function () {
