@@ -11,7 +11,7 @@ const ffmpeg = require('fluent-ffmpeg');
 const crypto = require('crypto');
 const PORT = process.env.PORT || 5500;
 const bodyParser = require('body-parser');
-const multer = require('multer');
+const sharp = require('sharp');
 
 app.use(express.static("frontend"));
 app.use(express.static(__dirname + '/script.js'));
@@ -46,13 +46,27 @@ async function downloadImage(url) {
         const imageBuffer = Buffer.from(response.data, 'binary');
 
         let fileName = await generatePictureFileNameUUID();
-        const filePath = path.join(__dirname + '/tmp/' + fileName);
+        const filePath = path.normalize(__dirname + '/tmp/' + fileName);
         fs.writeFileSync(filePath, imageBuffer);
 
         return filePath;
     } catch (error) {
         console.error(error);
     }
+}
+
+function resizeImage(inputPath, outputPath, width, height) {
+    return new Promise((resolve, reject) => {
+        sharp(inputPath)
+            .resize(width, height)
+            .toFile(outputPath, (err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(outputPath);
+                }
+            });
+    });
 }
 
 async function downloadBeat(file) {
@@ -68,26 +82,27 @@ app.post('/', async (req, res) => {
     let beatFilePath = await downloadBeat(req.files.beatFile);
     let imageFilePath = await downloadImage(req.body.picture_data);
 
-    console.log(req);
+    const outputPath = path.normalize(__dirname + '/tmp/' + '/resizedImg/' + 'resized.jpg');
+
+    await resizeImage(imageFilePath, outputPath, 200, 200).then((resizedImage) => {
+        createVideo(beatFilePath, resizedImage);
+    });
 
     res.status(204).send();
-
-    return createVideo(beatFilePath, imageFilePath);
 });
 
 function createVideo(beat, image) {
-    const outputFile = path.normalize(__dirname + '/tmp/' + `${crypto.randomUUID}.mp4`);
-    ffmpeg()
+
+    ffmpeg(image)
         .on('start', () => { console.log('Upload has started'); })
-        .addInput(image)
-        .addInput(beat)
+        .input(beat)
         .complexFilter([
-            '[0:v]scale=iw/2:ih/2[image]',
-            '[1:v]scale=w=1920:h=1080[beat]',
+            '[v:0]scale=w=1920:h=1080[image]',
+            '[v:1]scale=w=1920:h=1080[beat]',
             '[image][beat]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2'
         ])
         .autopad('black')
-        .output(outputFile)
+        .output('output.mp4')
         .on('end', () => {
             try {
                 fs.unlinkSync(beat);
@@ -100,30 +115,5 @@ function createVideo(beat, image) {
         })
         .run();
 }
-
-// Stream videofile
-// app.get('/', (req, res) => {
-//     const range = req.headers.range;
-//     if (!range) {
-//         res.status(400).send('error');
-//     }
-//     const videoPath = path.normalize(__dirname + '/tmp/' + 'output.mp4');
-//     const videoSize = fs.statSync(videoPath).size;
-//     const chunkSize = 10 ** 6;
-
-//     const start = Number(range.replace(/\D/g, ""));
-//     const end = Math.min(start + chunkSize, videoSize - 1);
-//     const contentLength = end - start + 1;
-//     const headers = {
-//         "Content-Range": `bytes ${start}-${end}/${videoSize}`,
-//         "Accept-Range": 'bytes',
-//         "Content-Length": contentLength,
-//         "Content-Type": "video/mp4"
-//     };
-
-//     res.writeHead(206, headers);
-//     const videoStream = fs.createReadStream(videoPath, { start, end });
-//     videoStream.pipe(res);
-// });
 
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
