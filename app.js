@@ -76,10 +76,17 @@ app.post('/', async (req, res) => {
 });
 
 function createVideo(beat, image) {
-    let video = ffmpeg()
+    ffmpeg()
         .on('start', () => { console.log('Upload has started'); })
         .addInput(image)
         .addInput(beat)
+
+        // TODO: Fix this
+        .complexFilter([
+            '[0:v]scale=iw*0.5:ih*0.5[img]',
+            '[1:v]scale=w=1920:h=1080[beat]',
+            '[img][beat]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2'
+        ])
         .size('1920x1080')
         .autopad('black')
         .output(path.normalize(__dirname + '/tmp/' + 'output.mp4'))
