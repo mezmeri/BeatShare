@@ -11,7 +11,6 @@ const ffmpeg = require('fluent-ffmpeg');
 const crypto = require('crypto');
 const PORT = process.env.PORT || 5500;
 const bodyParser = require('body-parser');
-const sharp = require('sharp');
 
 app.use(express.static("frontend"));
 app.use(express.static(__dirname + '/script.js'));
@@ -29,13 +28,13 @@ app.post('/api/search', (req, res) => {
     });
 });
 
-function generatePictureFileNameUUID() {
+function generateImageFileNameUUID() {
     return new Promise((resolve, reject) => {
         const fileName = `img-${crypto.randomUUID()}.jpg`;
         if (fileName) {
             resolve(fileName);
         } else {
-            reject('File name could not be generated.');
+            reject('File name could not be generated. Please try again.');
         }
     });
 }
@@ -45,7 +44,7 @@ async function downloadImage(url) {
         const response = await axios.get(url, { responseType: 'arraybuffer' });
         const imageBuffer = Buffer.from(response.data, 'binary');
 
-        let fileName = await generatePictureFileNameUUID();
+        let fileName = await generateImageFileNameUUID();
         const filePath = path.normalize(__dirname + '/tmp/' + fileName);
         fs.writeFileSync(filePath, imageBuffer);
 
@@ -55,21 +54,7 @@ async function downloadImage(url) {
     }
 }
 
-function resizeImage(inputPath, outputPath, width, height) {
-    return new Promise((resolve, reject) => {
-        sharp(inputPath)
-            .resize(width, height)
-            .toFile(outputPath, (err) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(outputPath);
-                }
-            });
-    });
-}
-
-async function downloadBeat(file) {
+async function downloadAudio(file) {
     const filePath = path.normalize(__dirname + '/tmp/' + file.name);
     file.mv(filePath, (err) => {
         if (err) return res.status(500).send(err);
@@ -79,35 +64,39 @@ async function downloadBeat(file) {
 }
 
 app.post('/', async (req, res) => {
-    let beatFilePath = await downloadBeat(req.files.beatFile);
-    let imageFilePath = await downloadImage(req.body.picture_data);
+    const image = await downloadImage(req.body.picture_data);
+    const audio = await downloadAudio(req.files.beatFile);
+    await renderOverlay(1920, 1080, 60);
 
-    const outputPath = path.normalize(__dirname + '/tmp/' + '/resizedImg/' + 'resized.jpg');
-
-    await resizeImage(imageFilePath, outputPath, 200, 200).then((resizedImage) => {
-        createVideo(beatFilePath, resizedImage);
-    });
-
-    res.status(204).send();
+    return createVideo(audio, image);
 });
 
-function createVideo(beat, image) {
-
-    ffmpeg(image)
+async function renderOverlay(width, height, duration) {
+    ffmpeg()
         .on('start', () => { console.log('Upload has started'); })
-        .input(beat)
-        .complexFilter([
-            '[v:0]scale=w=1920:h=1080[image]',
-            '[v:1]scale=w=1920:h=1080[beat]',
-            '[image][beat]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2'
-        ])
-        .autopad('black')
-        .output('output.mp4')
+        .input('color=c=black:s=' + `'${width}'` + 'x' + `'${height}'`)
+        .inputOptions('-f lavfi')
+        .outputOptions('-t ' + duration)
+        .output(__dirname + '/tmp/' + 'result.mp4')
+        .on('error', (err) => { console.error('An error occured while rendering the video:', err); })
+        .on('end', () => {
+
+        })
+        .run();
+
+}
+
+function createVideo(audio, image) {
+    ffmpeg()
+        .on('start', () => { console.log('Upload has started'); })
+        .addInput(image)
+        .addInput(audio)
+        .complexFilter('scale=640:480')
+        .output('final.mp4')
         .on('end', () => {
             try {
-                fs.unlinkSync(beat);
+                fs.unlinkSync(audio);
                 fs.unlinkSync(image);
-
                 console.log('Upload finished!');
             } catch (error) {
                 console.log(error);
