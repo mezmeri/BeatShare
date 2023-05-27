@@ -66,10 +66,23 @@ async function downloadAudio(file) {
 app.post('/', async (req, res) => {
     const image = await downloadImage(req.body.picture_data);
     const audio = await downloadAudio(req.files.beatFile);
-    await renderOverlay(1920, 1080, 60);
-
-    return createVideo(audio, image);
+    const audioDuration = await getAudioDuration(audio);
+    await renderOverlay(1920, 1080, Math.round(audioDuration));
+    // return createVideo(audio, image);
 });
+
+async function getAudioDuration(filePath) {
+    return new Promise((resolve, reject) => {
+        ffmpeg.ffprobe(filePath, (err, metadata) => {
+            if (err) {
+                reject(err);
+            } else {
+                let duration = metadata.format.duration;
+                resolve(duration);
+            }
+        });
+    });
+}
 
 async function renderOverlay(width, height, duration) {
     ffmpeg()
@@ -77,7 +90,7 @@ async function renderOverlay(width, height, duration) {
         .input('color=c=black:s=' + `'${width}'` + 'x' + `'${height}'`)
         .inputOptions('-f lavfi')
         .outputOptions('-t ' + duration)
-        .output(__dirname + '/tmp/' + 'result.mp4')
+        .output(__dirname + '/tmp/' + 'overlay.mp4')
         .on('error', (err) => { console.error('An error occured while rendering the video:', err); })
         .on('end', () => {
 
@@ -89,9 +102,9 @@ async function renderOverlay(width, height, duration) {
 function createVideo(audio, image) {
     ffmpeg()
         .on('start', () => { console.log('Upload has started'); })
+        .addInput(__dirname + '/tmp/' + 'overlay.mp4')
         .addInput(image)
         .addInput(audio)
-        .complexFilter('scale=640:480')
         .output('final.mp4')
         .on('end', () => {
             try {
