@@ -28,7 +28,7 @@ app.post('/api/search', (req, res) => {
     });
 });
 
-function generateImageFileNameUUID() {
+function generateImageFileNameUUID () {
     return new Promise((resolve, reject) => {
         const fileName = `img-${crypto.randomUUID()}.jpg`;
         if (fileName) {
@@ -39,7 +39,7 @@ function generateImageFileNameUUID() {
     });
 }
 
-async function downloadImage(url) {
+async function downloadImage (url) {
     try {
         const response = await axios.get(url, { responseType: 'arraybuffer' });
         const imageBuffer = Buffer.from(response.data, 'binary');
@@ -54,7 +54,7 @@ async function downloadImage(url) {
     }
 }
 
-async function downloadAudio(file) {
+async function downloadAudio (file) {
     const filePath = path.normalize(__dirname + '/tmp/' + file.name);
     file.mv(filePath, (err) => {
         if (err) return res.status(500).send(err);
@@ -72,7 +72,7 @@ app.post('/', async (req, res) => {
     return createVideo(audio, image, overlay);
 });
 
-async function getAudioDuration(filePath) {
+async function getAudioDuration (filePath) {
     return new Promise((resolve, reject) => {
         ffmpeg.ffprobe(filePath, (err, metadata) => {
             if (err) {
@@ -85,7 +85,7 @@ async function getAudioDuration(filePath) {
     });
 }
 
-async function renderOverlay(width, height, duration) {
+async function renderOverlay (width, height, duration) {
     return new Promise((resolve, reject) => {
         const filePath = path.normalize(__dirname + '/tmp/' + 'overlay.mp4');
         ffmpeg()
@@ -106,18 +106,34 @@ async function renderOverlay(width, height, duration) {
     });
 }
 
-function createVideo(audio, image, overlay) {
+function createVideo (audio, image, overlay) {
     const filePath = path.normalize(__dirname + '/tmp/' + `Video created with BeatShare.mp4`);
 
     ffmpeg()
-        .on('start', () => { console.log('Final upload has started.'); })
-        .input(image)
-        .input(overlay)
-        .input(audio)
+        .on('start', () => {
+            console.log('Final upload has started.');
+        })
+        .addInput(overlay)
+        .addInput(audio)
+        .addInput(image)
         .complexFilter([
-            '[0:v]scale=iw*0.5:ih*0.5[img]', // Resize the image to 50% of its original size
-            '[1:v]scale=w=1920:h=1080[beat]', // Resize the beat video to 1920x1080
-            '[2:v][img]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2[bg]', // Overlay the image on the black background
+            {
+                filter: 'scale',
+                inputs: '[2:v]',
+                options: 'iw*0.9:ih*0.9',
+                outputs: '[img]'
+            },
+            {
+                filter: 'scale',
+                inputs: '[0:v]',
+                options: 'w=1920:h=1080',
+                outputs: '[overlay]'
+            },
+            {
+                filter: 'overlay',
+                inputs: '[overlay][img]',
+                options: '(main_w-overlay_w)/2:(main_h-overlay_h)/2'
+            }
         ])
         .output(filePath)
         .on('end', () => {
