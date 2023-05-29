@@ -67,8 +67,9 @@ app.post('/', async (req, res) => {
     const image = await downloadImage(req.body.picture_data);
     const audio = await downloadAudio(req.files.beatFile);
     const audioDuration = await getAudioDuration(audio);
-    await renderOverlay(1920, 1080, Math.round(audioDuration));
-    // return createVideo(audio, image);
+    const overlay = await renderOverlay(1920, 1080, Math.round(audioDuration));
+
+    return createVideo(audio, image, overlay);
 });
 
 async function getAudioDuration(filePath) {
@@ -85,32 +86,45 @@ async function getAudioDuration(filePath) {
 }
 
 async function renderOverlay(width, height, duration) {
-    ffmpeg()
-        .on('start', () => { console.log('Upload has started'); })
-        .input('color=c=black:s=' + `'${width}'` + 'x' + `'${height}'`)
-        .inputOptions('-f lavfi')
-        .outputOptions('-t ' + duration)
-        .output(__dirname + '/tmp/' + 'overlay.mp4')
-        .on('error', (err) => { console.error('An error occured while rendering the video:', err); })
-        .on('end', () => {
-
-        })
-        .run();
-
+    return new Promise((resolve, reject) => {
+        const filePath = path.normalize(__dirname + '/tmp/' + 'overlay.mp4');
+        ffmpeg()
+            .on('start', () => { console.log('Overlay is being uploaded.'); })
+            .input('color=c=black:s=' + `'${width}'` + 'x' + `'${height}'`)
+            .inputOptions('-f lavfi')
+            .outputOptions('-t ' + duration)
+            .output(filePath)
+            .on('error', (err) => {
+                console.error('An error occured while rendering the video:', err);
+                reject('Overlay upload failed. Operation rejected.');
+            })
+            .on('end', () => {
+                console.log('Overlay was succesfully uploaded.');
+                resolve(filePath);
+            })
+            .run();
+    });
 }
 
-function createVideo(audio, image) {
+function createVideo(audio, image, overlay) {
+    const filePath = path.normalize(__dirname + '/tmp/' + `Video created with BeatShare.mp4`);
     ffmpeg()
-        .on('start', () => { console.log('Upload has started'); })
-        .addInput(__dirname + '/tmp/' + 'overlay.mp4')
+        .on('start', () => { console.log('Final upload has started'); })
         .addInput(image)
         .addInput(audio)
-        .output('final.mp4')
+        .addInput(overlay)
+        .complexFilter([
+            '[0:v]scale=iw*0.5:ih*0.5[img]', // Resize the image to 50% of its original size
+            '[1:v]scale=w=1920:h=1080[beat]', // Resize the beat video to 1920x1080
+            '[2:v][img]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2[bg]', // Overlay the image on the black background
+        ])
+        .output(filePath)
         .on('end', () => {
             try {
                 fs.unlinkSync(audio);
                 fs.unlinkSync(image);
-                console.log('Upload finished!');
+                fs.unlinkSync(__dirname + '/tmp/' + 'overlay.mp4');
+                console.log('Final upload finished!');
             } catch (error) {
                 console.log(error);
             }
