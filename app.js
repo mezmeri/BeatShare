@@ -72,7 +72,7 @@ app.post('/', async (req, res) => {
     return createVideo(audio, image, overlay);
 });
 
-async function getAudioDuration (filePath) {
+function getAudioDuration (filePath) {
     return new Promise((resolve, reject) => {
         ffmpeg.ffprobe(filePath, (err, metadata) => {
             if (err) {
@@ -85,7 +85,7 @@ async function getAudioDuration (filePath) {
     });
 }
 
-async function renderOverlay (width, height, duration) {
+function renderOverlay (width, height, duration) {
     return new Promise((resolve, reject) => {
         const filePath = path.normalize(__dirname + '/tmp/' + 'overlay.mp4');
         ffmpeg()
