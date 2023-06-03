@@ -28,7 +28,7 @@ app.post('/api/search', (req, res) => {
     });
 });
 
-function generateImageFileNameUUID () {
+function generateImageFileNameUUID() {
     return new Promise((resolve, reject) => {
         const fileName = `img-${crypto.randomUUID()}.jpg`;
         if (fileName) {
@@ -39,7 +39,7 @@ function generateImageFileNameUUID () {
     });
 }
 
-async function downloadImage (url) {
+async function downloadImage(url) {
     try {
         const response = await axios.get(url, { responseType: 'arraybuffer' });
         const imageBuffer = Buffer.from(response.data, 'binary');
@@ -54,7 +54,7 @@ async function downloadImage (url) {
     }
 }
 
-async function downloadAudio (file) {
+async function downloadAudio(file) {
     const filePath = path.normalize(__dirname + '/tmp/' + file.name);
     file.mv(filePath, (err) => {
         if (err) return res.status(500).send(err);
@@ -72,7 +72,7 @@ app.post('/', async (req, res) => {
     return createVideo(audio, image, overlay);
 });
 
-function getAudioDuration (filePath) {
+function getAudioDuration(filePath) {
     return new Promise((resolve, reject) => {
         ffmpeg.ffprobe(filePath, (err, metadata) => {
             if (err) {
@@ -85,7 +85,7 @@ function getAudioDuration (filePath) {
     });
 }
 
-function renderOverlay (width, height, duration) {
+function renderOverlay(width, height, duration) {
     return new Promise((resolve, reject) => {
         const filePath = path.normalize(__dirname + '/tmp/' + 'overlay.mp4');
         ffmpeg()
@@ -106,7 +106,7 @@ function renderOverlay (width, height, duration) {
     });
 }
 
-function createVideo (audio, image, overlay) {
+function createVideo(audio, image, overlay) {
     const filePath = path.normalize(__dirname + '/tmp/' + `Video created with BeatShare.mp4`);
 
     ffmpeg()
