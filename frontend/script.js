@@ -5,22 +5,22 @@ form.addEventListener('keypress', (event) => {
     }
 });
 
+const input_searchForPicture = document.getElementById('searchForPicture');
 input_searchForPicture.onfocus = function () {
     input_searchForPicture.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
             input_searchForPicture.blur();
             button_searchForPicture.focus();
-            initPexelsAPI(input_searchForPicture.value);
+            searchForPicturesAPI(input_searchForPicture.value);
         }
     });
 };
 
-const input_searchForPicture = document.getElementById('searchForPicture');
 const button_searchForPicture = document.getElementById('searchForPictureButton');
 const searchResultPictures = document.getElementById('selectAlbumCover');
 const searchAPIArea = document.getElementById('searchPictureAPI');
 
-const initPexelsAPI = async (input) => {
+const searchForPicturesAPI = async (input) => {
     const url = 'http://localhost:5500/api/search';
 
     const json = `{"result":"${input}"}`;
@@ -115,16 +115,14 @@ function getSelectedImage(url) {
 }
 
 function createSpinner() {
-    const div1 = document.createElement('div');
-    div1.className = 'd-flex justify-content-center';
-    div1.id = 'spinner';
+    const videoPreviewSection = document.getElementById('videoPreviewSection');
     const div2 = document.createElement('div');
+    div2.id = 'spinner';
     div2.className = 'spinner-border';
     div2.role = 'status';
     const span = document.createElement('span');
     span.className = 'visually-hidden';
 
-    div1.appendChild(div2);
     div2.appendChild(span);
     videoPreviewSection.appendChild(div2);
 }
@@ -139,21 +137,20 @@ async function sendDataToBackend(source) {
         method: 'POST',
         body: formData,
     })
-        .then(response => {
+        .then(async (response) => {
             if (!response.ok) {
                 console.error('Data sending failed:', response.status, response.statusText);
             } else {
-                console.log('Data sent!');
+                createSpinner();
+                setTimeout(() => {
+                    getVideoFromBackendAndPlayIt();
+                }, 7000);
             }
-            return response.blob();
-        })
-        .then(() => {
-            getVideoFromBackendAndPlayIt();
         })
         .catch(err => console.warn(err))
         .finally(() => {
-            const spinner = document.getElementById('spinner');
-            spinner.classList.add('spinner-disable');
+            const videoPreviewSection = document.getElementById('videoPreviewSection');
+            videoPreviewSection.style.display = 'block';
         });
 
 };
@@ -165,15 +162,17 @@ async function getVideoFromBackendAndPlayIt() {
             if (!response.ok) {
                 throw new Error('Failed to fetch video:' + response.status);
             } else {
-                console.log(response);
                 const videoElement = document.createElement('video');
                 videoElement.id = 'beat-video';
                 videoElement.src = response.url;
                 videoElement.controls = true;
 
                 const videoPreviewSection = document.getElementById('videoPreviewSection');
-                videoPreviewSection.style.display = 'block';
                 videoPreviewSection.appendChild(videoElement);
             }
-        }).catch(err => console.warn(err));
+        }).catch(err => console.warn(err))
+        .finally(() => {
+            const spinner = document.getElementById('spinner');
+            spinner.remove();
+        });
 }

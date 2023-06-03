@@ -60,8 +60,9 @@ li a {
     height: 100%;
 }
 
-.spinner-disable {
-    display: none;
+#spinner {
+    position: relative;
+    margin: auto;
 }
 
 #selectAlbumCover {

@@ -67,10 +67,10 @@ app.post('/', async (req, res) => {
     const image = await downloadImage(req.body.picture_data);
     const audio = await downloadAudio(req.files.beatFile);
     const audioDuration = await getAudioDuration(audio);
+    res.sendStatus(200);
     const overlay = await renderOverlay(1920, 1080, Math.round(audioDuration));
 
     await createVideo(audio, image, overlay);
-    res.sendStatus(200);
 });
 
 function getAudioDuration(filePath) {
