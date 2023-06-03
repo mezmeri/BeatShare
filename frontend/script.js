@@ -5,6 +5,16 @@ form.addEventListener('keypress', (event) => {
     }
 });
 
+input_searchForPicture.onfocus = function () {
+    input_searchForPicture.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            input_searchForPicture.blur();
+            button_searchForPicture.focus();
+            initPexelsAPI(input_searchForPicture.value);
+        }
+    });
+};
+
 const input_searchForPicture = document.getElementById('searchForPicture');
 const button_searchForPicture = document.getElementById('searchForPictureButton');
 const searchResultPictures = document.getElementById('selectAlbumCover');
@@ -83,7 +93,7 @@ pictureSearchResults.addEventListener('click', function (event) {
         } else {
             pictureURL.push(pictureDataSrc);
         }
-        highlightSelectedImage(pictureURL);
+        // highlightSelectedImage(pictureURL);
         return getSelectedImage(pictureURL);
     }
 });
@@ -104,35 +114,66 @@ function getSelectedImage(url) {
     });
 }
 
+function createSpinner() {
+    const div1 = document.createElement('div');
+    div1.className = 'd-flex justify-content-center';
+    div1.id = 'spinner';
+    const div2 = document.createElement('div');
+    div2.className = 'spinner-border';
+    div2.role = 'status';
+    const span = document.createElement('span');
+    span.className = 'visually-hidden';
+
+    div1.appendChild(div2);
+    div2.appendChild(span);
+    videoPreviewSection.appendChild(div2);
+}
+
 async function sendDataToBackend(source) {
     const formData = new FormData();
     const fileInput = document.getElementById('upload-beat-input');
     formData.append('picture_data', source);
     formData.append('beatFile', fileInput.files[0]);
 
-    try {
-        const response = await fetch('http://localhost:5500', {
-            method: 'POST',
-            body: formData,
+    await fetch('http://localhost:5500', {
+        method: 'POST',
+        body: formData,
+    })
+        .then(response => {
+            if (!response.ok) {
+                console.error('Data sending failed:', response.status, response.statusText);
+            } else {
+                console.log('Data sent!');
+            }
+            return response.blob();
+        })
+        .then(() => {
+            getVideoFromBackendAndPlayIt();
+        })
+        .catch(err => console.warn(err))
+        .finally(() => {
+            const spinner = document.getElementById('spinner');
+            spinner.classList.add('spinner-disable');
         });
 
-        if (!response.ok) {
-            console.error('Data sending failed:', response.status, response.statusText);
-        } else {
-            console.log('Data sent!');
-        }
-    } catch (error) {
-        console.error(error);
-    }
 };
 
-// pressing enter in the search bar starts the API call
-input_searchForPicture.onfocus = function () {
-    input_searchForPicture.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') {
-            input_searchForPicture.blur();
-            button_searchForPicture.focus();
-            initPexelsAPI(input_searchForPicture.value);
-        }
-    });
-};
+async function getVideoFromBackendAndPlayIt() {
+    const videoSource = 'http://localhost:5500/video';
+    await fetch(videoSource)
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch video:' + response.status);
+            } else {
+                console.log(response);
+                const videoElement = document.createElement('video');
+                videoElement.id = 'beat-video';
+                videoElement.src = response.url;
+                videoElement.controls = true;
+
+                const videoPreviewSection = document.getElementById('videoPreviewSection');
+                videoPreviewSection.style.display = 'block';
+                videoPreviewSection.appendChild(videoElement);
+            }
+        }).catch(err => console.warn(err));
+}

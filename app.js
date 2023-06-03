@@ -69,7 +69,8 @@ app.post('/', async (req, res) => {
     const audioDuration = await getAudioDuration(audio);
     const overlay = await renderOverlay(1920, 1080, Math.round(audioDuration));
 
-    return createVideo(audio, image, overlay);
+    await createVideo(audio, image, overlay);
+    res.sendStatus(200);
 });
 
 function getAudioDuration(filePath) {
@@ -107,46 +108,63 @@ function renderOverlay(width, height, duration) {
 }
 
 function createVideo(audio, image, overlay) {
-    const filePath = path.normalize(__dirname + '/tmp/' + `Video created with BeatShare.mp4`);
+    return new Promise((resolve, reject) => {
+        const filePath = path.normalize(__dirname + '/tmp/' + `finalvideo.mp4`);
 
-    ffmpeg()
-        .on('start', () => {
-            console.log('Final upload has started.');
-        })
-        .addInput(overlay)
-        .addInput(audio)
-        .addInput(image)
-        .complexFilter([
-            {
-                filter: 'scale',
-                inputs: '[2:v]',
-                options: 'iw*0.9:ih*0.9',
-                outputs: '[img]'
-            },
-            {
-                filter: 'scale',
-                inputs: '[0:v]',
-                options: 'w=1920:h=1080',
-                outputs: '[overlay]'
-            },
-            {
-                filter: 'overlay',
-                inputs: '[overlay][img]',
-                options: '(main_w-overlay_w)/2:(main_h-overlay_h)/2'
-            }
-        ])
-        .output(filePath)
-        .on('end', () => {
-            try {
-                fs.unlinkSync(audio);
-                fs.unlinkSync(image);
-                fs.unlinkSync(__dirname + '/tmp/' + 'overlay.mp4');
-                console.log('Final upload finished!');
-            } catch (error) {
-                console.log(error);
-            }
-        })
-        .run();
+        ffmpeg()
+            .on('start', () => {
+                console.log('Final upload has started.');
+            })
+            .on('error', function (err, stdout, stderr) {
+                console.log('Cannot process video: ' + err.message);
+                reject();
+            })
+            .addInput(overlay)
+            .addInput(audio)
+            .addInput(image)
+            .complexFilter([
+                {
+                    filter: 'scale',
+                    inputs: '[2:v]',
+                    options: 'iw*0.9:ih*0.9',
+                    outputs: '[img]'
+                },
+                {
+                    filter: 'scale',
+                    inputs: '[0:v]',
+                    options: 'w=1920:h=1080',
+                    outputs: '[overlay]'
+                },
+                {
+                    filter: 'overlay',
+                    inputs: '[overlay][img]',
+                    options: '(main_w-overlay_w)/2:(main_h-overlay_h)/2'
+                }
+            ])
+            .output(filePath)
+            .on('end', () => {
+                try {
+                    fs.unlinkSync(audio);
+                    fs.unlinkSync(image);
+                    fs.unlinkSync(__dirname + '/tmp/' + 'overlay.mp4');
+                    console.log('Final upload finished!');
+                    resolve('Video upload complete');
+                } catch (error) {
+                    console.log(error);
+                }
+            })
+            .run();
+    });
 }
+
+app.get('/video', async (req, res) => {
+    const videoPath = path.normalize(__dirname + '/tmp/' + 'finalvideo.mp4');
+
+    res.setHeader('Content-Type', 'video/mp4');
+    res.setHeader('Content-Length', fs.statSync(videoPath).size);
+
+    const stream = fs.createReadStream(videoPath);
+    stream.pipe(res);
+});
 
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

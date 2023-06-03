@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <script src="script.js" defer></script>
 
@@ -18,11 +18,10 @@
     <main id="main-container">
         <div id="main-content-container" class="slide-top">
             <div id="top-logo">
-                <h3>BeatShare</h3><span class="badge text-bg-light">Beta</span>
+                <h3 class="topLogo">BeatShare</h3><span class="badge text-bg-success">Beta</span>
             </div>
 
-            <div class="ratio ratio-16x9" id="videoPreviewSection">
-
+            <div id="videoPreviewSection">
             </div>
 
 
@@ -34,7 +33,7 @@
                     <div class="input-group mb-3" id="searchPictureAPI">
                         <input type="text" id="searchForPicture" class="form-control" placeholder="E.g. city at night"
                             aria-describedby="button-addon2" name="albumSearch">
-                        <button id="searchForPictureButton" class="btn btn-primary" type="button">Search</button>
+                        <button id="searchForPictureButton" class="btn btn-dark" type="button">Search</button>
                     </div>
 
                     <div id="selectAlbumCover">
@@ -58,10 +57,13 @@
             </div>
 
             <a href="https://www.pexels.com">
-                <img id="pexelsLink" src="https://images.pexels.com/lib/api/pexels-white.png" />
+                <img id="pexelsLink" src="https://images.pexels.com/lib/api/pexels.png" />
             </a>
         </div>
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
 </body>
 
 </html>
