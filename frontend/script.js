@@ -148,17 +148,16 @@ async function sendDataToBackend(source) {
             }
         })
         .then(id => {
-            getVideoFromBackendAndPlayIt(id.videoId);
+            retrieveVideoFromBackend(id.videoId);
         })
         .catch(err => console.warn(err))
         .finally(() => {
             const videoPreviewSection = document.getElementById('videoPreviewSection');
             videoPreviewSection.style.display = 'block';
         });
-
 };
 
-async function getVideoFromBackendAndPlayIt(videoId) {
+async function retrieveVideoFromBackend(videoId) {
     const videoSource = `http://localhost:5500/video/${videoId}`;
     await fetch(videoSource)
         .then((response) => {
