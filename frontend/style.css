@@ -43,13 +43,10 @@ li a {
 }
 
 #videoPreviewSection {
-    --videoRatioWidth: 40%;
     display: none;
     position: relative;
     margin: auto;
-    width: var(--videoRatioWidth);
-    margin-bottom: 5%;
-    padding-bottom: 22.5%;
+    margin-bottom: 3%;
 }
 
 #beat-video {

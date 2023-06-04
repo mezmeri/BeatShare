@@ -116,15 +116,15 @@ function getSelectedImage(url) {
 
 function createSpinner() {
     const videoPreviewSection = document.getElementById('videoPreviewSection');
-    const div2 = document.createElement('div');
-    div2.id = 'spinner';
-    div2.className = 'spinner-border';
-    div2.role = 'status';
+    const div = document.createElement('div');
+    div.id = 'spinner';
+    div.className = 'spinner-border';
+    div.role = 'status';
     const span = document.createElement('span');
     span.className = 'visually-hidden';
 
-    div2.appendChild(span);
-    videoPreviewSection.appendChild(div2);
+    div.appendChild(span);
+    videoPreviewSection.appendChild(div);
 }
 
 async function sendDataToBackend(source) {
@@ -133,19 +133,22 @@ async function sendDataToBackend(source) {
     formData.append('picture_data', source);
     formData.append('beatFile', fileInput.files[0]);
 
-    await fetch('http://localhost:5500', {
+    await fetch('http://localhost:5500/video', {
         method: 'POST',
         body: formData,
     })
-        .then(async (response) => {
+        .then((response) => {
             if (!response.ok) {
                 console.error('Data sending failed:', response.status, response.statusText);
             } else {
                 createSpinner();
                 setTimeout(() => {
-                    getVideoFromBackendAndPlayIt();
                 }, 7000);
+                return response.json();
             }
+        })
+        .then(id => {
+            getVideoFromBackendAndPlayIt(id.videoId);
         })
         .catch(err => console.warn(err))
         .finally(() => {
@@ -155,8 +158,8 @@ async function sendDataToBackend(source) {
 
 };
 
-async function getVideoFromBackendAndPlayIt() {
-    const videoSource = 'http://localhost:5500/video';
+async function getVideoFromBackendAndPlayIt(videoId) {
+    const videoSource = `http://localhost:5500/video/${videoId}`;
     await fetch(videoSource)
         .then((response) => {
             if (!response.ok) {
@@ -169,8 +172,13 @@ async function getVideoFromBackendAndPlayIt() {
 
                 const videoPreviewSection = document.getElementById('videoPreviewSection');
                 videoPreviewSection.appendChild(videoElement);
+                const width = 0.4 * 100;
+                const ratio = 9 / 16 * width;
+                videoPreviewSection.style.width = `${width}%`;
+                videoPreviewSection.style.paddingBottom = `${ratio}%`;
             }
-        }).catch(err => console.warn(err))
+        })
+        .catch(err => console.warn(err))
         .finally(() => {
             const spinner = document.getElementById('spinner');
             spinner.remove();

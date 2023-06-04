@@ -28,9 +28,9 @@ app.post('/api/search', (req, res) => {
     });
 });
 
-function generateImageFileNameUUID() {
+function generateFileNameUUID() {
     return new Promise((resolve, reject) => {
-        const fileName = `img-${crypto.randomUUID()}.jpg`;
+        const fileName = `${crypto.randomUUID()}`;
         if (fileName) {
             resolve(fileName);
         } else {
@@ -44,8 +44,8 @@ async function downloadImage(url) {
         const response = await axios.get(url, { responseType: 'arraybuffer' });
         const imageBuffer = Buffer.from(response.data, 'binary');
 
-        let fileName = await generateImageFileNameUUID();
-        const filePath = path.normalize(__dirname + '/tmp/' + fileName);
+        let fileName = await generateFileNameUUID();
+        const filePath = path.normalize(__dirname + '/tmp/' + fileName + '.jpg');
         fs.writeFileSync(filePath, imageBuffer);
 
         return filePath;
@@ -63,14 +63,26 @@ async function downloadAudio(file) {
     return filePath;
 }
 
-app.post('/', async (req, res) => {
+// Handle the incoming audio and picture.
+app.post('/video', async (req, res) => {
     const image = await downloadImage(req.body.picture_data);
     const audio = await downloadAudio(req.files.beatFile);
     const audioDuration = await getAudioDuration(audio);
-    res.sendStatus(200);
     const overlay = await renderOverlay(1920, 1080, Math.round(audioDuration));
 
-    await createVideo(audio, image, overlay);
+    await createVideo(audio, image, overlay).then(id => {
+        res.json({ videoId: id });
+    });
+});
+
+app.get('/video/:videoId', (req, res) => {
+    const { videoId } = req.params;
+    const videoPath = path.normalize(__dirname + '/tmp/' + videoId + '.mp4');
+    res.setHeader('Content-Type', 'video/mp4');
+    res.setHeader('Content-Length', fs.statSync(videoPath).size);
+
+    const stream = fs.createReadStream(videoPath);
+    stream.pipe(res);
 });
 
 function getAudioDuration(filePath) {
@@ -87,8 +99,9 @@ function getAudioDuration(filePath) {
 }
 
 function renderOverlay(width, height, duration) {
-    return new Promise((resolve, reject) => {
-        const filePath = path.normalize(__dirname + '/tmp/' + 'overlay.mp4');
+    return new Promise(async (resolve, reject) => {
+        const fileName = await generateFileNameUUID();
+        const filePath = path.normalize(__dirname + '/tmp/' + fileName + '.mp4');
         ffmpeg()
             .on('start', () => { console.log('Overlay is being rendered.'); })
             .input('color=c=black:s=' + `'${width}'` + 'x' + `'${height}'`)
@@ -108,8 +121,9 @@ function renderOverlay(width, height, duration) {
 }
 
 function createVideo(audio, image, overlay) {
-    return new Promise((resolve, reject) => {
-        const filePath = path.normalize(__dirname + '/tmp/' + `finalvideo.mp4`);
+    return new Promise(async (resolve, reject) => {
+        const fileName = await generateFileNameUUID();
+        const filePath = path.normalize(__dirname + '/tmp/' + fileName + '.mp4');
 
         ffmpeg()
             .on('start', () => {
@@ -146,9 +160,9 @@ function createVideo(audio, image, overlay) {
                 try {
                     fs.unlinkSync(audio);
                     fs.unlinkSync(image);
-                    fs.unlinkSync(__dirname + '/tmp/' + 'overlay.mp4');
+                    fs.unlinkSync(overlay);
                     console.log('Final upload finished!');
-                    resolve('Video upload complete');
+                    resolve(fileName);
                 } catch (error) {
                     console.log(error);
                 }
@@ -157,14 +171,14 @@ function createVideo(audio, image, overlay) {
     });
 }
 
-app.get('/video', async (req, res) => {
-    const videoPath = path.normalize(__dirname + '/tmp/' + 'finalvideo.mp4');
+// app.get('/video', async (req, res) => {
+//     const videoPath = path.normalize(__dirname + '/tmp/' + 'finalvideo.mp4');
 
-    res.setHeader('Content-Type', 'video/mp4');
-    res.setHeader('Content-Length', fs.statSync(videoPath).size);
+//     res.setHeader('Content-Type', 'video/mp4');
+//     res.setHeader('Content-Length', fs.statSync(videoPath).size);
 
-    const stream = fs.createReadStream(videoPath);
-    stream.pipe(res);
-});
+//     const stream = fs.createReadStream(videoPath);
+//     stream.pipe(res);
+// });
 
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
