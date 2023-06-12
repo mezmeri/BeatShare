@@ -12,7 +12,7 @@ const crypto = require('crypto');
 const PORT = process.env.PORT || 5500;
 const bodyParser = require('body-parser');
 
-app.use(express.static("frontend"));
+app.use(express.static("resources"));
 app.use(express.static(__dirname + '/script.js'));
 app.use(fileUpload());
 app.use(cors());
