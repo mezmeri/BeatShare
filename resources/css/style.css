@@ -1,5 +1,5 @@
 :root {
-    --resWidthSize: 640px;
+    --stdPurpleColor: rgb(119, 1, 187);
     --resHeightSize: 360px;
 }
 
@@ -115,10 +115,12 @@ li a {
     background-color: rgb(52, 179, 52);
 }
 
+.btn {
+    font-size: 16px;
+}
+
 .btn-primary {
-    background-color: rgb(162, 0, 255) !important;
-    border: 0px !important;
-    font-weight: 600 !important;
+    background-color: var(--stdPurpleColor)
 }
 
 header {
@@ -166,7 +168,7 @@ nav ul li a {
 }
 
 .highlightedItem {
-    background-color: rgb(162, 0, 255);
+    background-color: var(--stdPurpleColor);
     color: white;
     border-radius: 5px;
 }
@@ -210,10 +212,13 @@ nav ul li.highlightedItem a {
 }
 
 .featureList {
+    position: relative;
     background-color: white;
     border-color: white;
     border-style: solid;
-    border-width: 1px;
+    border-width: 0px;
+    border-right-width: 10px;
+    border-right-color: var(--stdPurpleColor);
     border-radius: 5px;
     margin: 1%;
     box-shadow: 20px 10px 55px -11px rgba(0, 0, 0, 0.1);
@@ -222,7 +227,18 @@ nav ul li.highlightedItem a {
 }
 
 .feature-list-logo {
-    color: rgb(162, 0, 255);
-    width: 30px;
-    margin-bottom: 5%;
+    position: relative;
+    color: white;
+    width: 40px;
+    margin-bottom: 8%;
+}
+
+.corner-color {
+    position: absolute;
+    border-radius: 5px 0% 50% 0%;
+    top: 0;
+    left: 0;
+    width: 70px;
+    height: 70px;
+    background-color: var(--stdPurpleColor)
 }
