@@ -1,5 +1,5 @@
 :root {
-    --stdPurpleColor: rgb(119, 1, 187);
+    --stdPurpleColor: rgb(118, 28, 255);
     --resHeightSize: 360px;
 }
 
@@ -17,7 +17,13 @@
 }
 
 body {
-    background-color: rgb(238, 238, 238) !important;
+    background-color: rgb(238, 238, 238);
+}
+
+main {
+    width: 80%;
+    margin: auto;
+    margin-bottom: 10%;
 }
 
 .object_id {
@@ -120,14 +126,37 @@ li a {
     border-width: 0px;
 }
 
-.btn:focus {
-    outline: 2px solid rgba(141, 0, 222, 0.477);
+
+.btn-primary {
+    background-color: var(--stdPurpleColor);
+}
+
+.btn-primary:hover {
+    outline: 0px;
     outline-offset: 0px;
     background-color: var(--stdPurpleColor);
 }
 
-.btn-primary {
-    background-color: var(--stdPurpleColor)
+.btn-primary:focus {
+    outline: 0px;
+    border-width: 0px;
+
+    outline-offset: 0px;
+    background-color: var(--stdPurpleColor);
+}
+
+.btn-light {
+    color: var(--stdPurpleColor);
+    font-weight: bold;
+    border-radius: 50px;
+    width: 100%;
+}
+
+.btn-light:hover {
+    color: var(--stdPurpleColor);
+    font-weight: bold;
+    border-radius: 50px;
+    width: 100%;
 }
 
 header {
@@ -187,6 +216,7 @@ nav ul li.highlightedItem a {
 #frontStrip {
     display: grid;
     grid-template-columns: 2;
+    gap: 10%;
     width: 100%;
     padding-top: 5%;
     padding-bottom: 5%;
@@ -251,9 +281,6 @@ nav ul li.highlightedItem a {
     margin-top: 5%;
     margin-bottom: 5%;
     padding-top: 4rem;
-    box-shadow: 20px 10px 55px -11px rgba(0, 0, 0, 0.1);
-    -webkit-box-shadow: 20px 10px 55px -11px rgba(0, 0, 0, 0.1);
-    -moz-box-shadow: 20px 10px 55px -11px rgba(0, 0, 0, 0.1);
 
 }
 
@@ -279,6 +306,80 @@ nav ul li.highlightedItem a {
 }
 
 .strip {
-    background-color: black;
     width: 100%;
+    text-align: center;
+}
+
+.strip-header {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 5%;
+}
+
+.strip-header h1 {
+    font-weight: 600;
+}
+
+.strip-header p {
+    color: gray;
+    font-weight: 400;
+    font-size: larger;
+}
+
+#price-card-strip {
+    display: grid;
+    grid-template-columns: 2;
+    grid-template-columns: repeat(2, auto);
+    gap: 50px;
+    justify-content: center;
+}
+
+#starter-price-card {
+    background-color: rgb(230, 230, 230)
+}
+
+#starter-price-card h6 {
+    color: black;
+}
+
+#starter-price-card h5 {
+    color: rgb(105, 105, 105);
+}
+
+#starter-price-card h3 {
+    color: black;
+}
+
+#starter-card-button {
+    width: 100%;
+    border-radius: 50px;
+    font-weight: bold;
+}
+
+.price-card {
+    position: relative;
+    width: 100%;
+    background-color: var(--stdPurpleColor);
+    border-radius: 20px;
+    padding: 5%;
+}
+
+.price-card h6 {
+    color: white;
+    text-align: left;
+}
+
+.price-card h3 {
+    color: white;
+    font-weight: 700;
+    text-align: left;
+    margin-top: 8%;
+    margin-bottom: 8%;
+}
+
+.price-card h5 {
+    color: white;
+    text-align: left;
+    font-weight: 400;
+    margin-bottom: 30px;
 }
