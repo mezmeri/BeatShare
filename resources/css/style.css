@@ -239,6 +239,13 @@ nav ul li.highlightedItem a {
     margin-bottom: 6%;
 }
 
+#start-project-button {
+    width: 200px;
+    font-weight: bold;
+    height: 5ch;
+    border-radius: 5px;
+}
+
 @keyframes slide-top {
     0% {
         transform: translateY(20%);
@@ -279,7 +286,6 @@ nav ul li.highlightedItem a {
     border-radius: 5px;
     margin: 1%;
     margin-top: 5%;
-    margin-bottom: 5%;
     padding-top: 4rem;
 
 }
@@ -313,7 +319,8 @@ nav ul li.highlightedItem a {
 .strip-header {
     width: 100%;
     text-align: center;
-    margin-bottom: 5%;
+    margin-top: 10%;
+    margin-bottom: 10%;
 }
 
 .strip-header h1 {
@@ -331,11 +338,28 @@ nav ul li.highlightedItem a {
     grid-template-columns: 2;
     grid-template-columns: repeat(2, auto);
     gap: 50px;
-    justify-content: center;
+    margin-bottom: 3%;
+
+}
+
+.info-box {
+    position: relative;
+    width: 100%;
+    text-align: left;
 }
 
 #starter-price-card {
-    background-color: rgb(230, 230, 230)
+    background-color: rgb(230, 230, 230);
+}
+
+table,
+th,
+td {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.158);
+}
+
+td {
+    font-weight: bold;
 }
 
 #starter-price-card h6 {

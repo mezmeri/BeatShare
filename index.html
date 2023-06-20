@@ -35,7 +35,8 @@
             <h3>Create instant shareable videos for your music</h3>
             <h5>This is a plain text which counts as a description of the BeatShare platform!</h5>
             <p></p>
-            <button type="button" class="btn btn-primary focus-ring" id=start-project-button>Start project</button>
+            <button type="button" class="btn btn-primary focus-ring" id="start-project-button">Create new
+                project</button>
         </div>
         <div id="album-cover-front-page">
             <img src="/resources/data/images/albumcover-frontpage.png" id="album-cover" alt="">
@@ -109,26 +110,46 @@
             <h1>Pricing</h1>
             <p>Our prices are structured around affordability for smaller artists. We'd like to keep it that way.</p>
         </div>
-        <section class="strip" id="price-card-strip">
-            <div class="price-card" id="starter-price-card">
-                <div class="price-card-header">
-                    <h6>Starter</h6>
+        <section class="strip">
+            <div id="price-card-strip">
+                <div class="price-card" id="starter-price-card">
+                    <div class="price-card-header">
+                        <h6>Starter</h6>
+                    </div>
+                    <div class="price-card-body">
+                        <h3>1.47$/mo</h3>
+                        <h5>Good for trying out, or the occassional design project.</h5>
+                        <button type="button" id="starter-card-button" class="btn btn-primary">Read more</button>
+                    </div>
                 </div>
-                <div class="price-card-body">
-                    <h3>1.47$/mo</h3>
-                    <h5>Good for trying out, or the occassional design project.</h5>
-                    <button type="button" id="starter-card-button" class="btn btn-primary">Select plan</button>
+                <div class="price-card" id="established-price-card">
+                    <div class="price-card-header">
+                        <h6>Established</h6>
+                    </div>
+                    <div class="price-card-body">
+                        <h3>7.33$/mo</h3>
+                        <h5>Great for the established artist who wants all features.</h5>
+                        <button type="button" id="established-card-button" class="btn btn-light">Read more</button>
+                    </div>
                 </div>
             </div>
-            <div class="price-card" id="established-price-card">
-                <div class="price-card-header">
-                    <h6>Established</h6>
-                </div>
-                <div class="price-card-body">
-                    <h3>7.33$/mo</h3>
-                    <h5>Great for the established artist who wants all features.</h5>
-                    <button type="button" class="btn btn-light">Select plan</button>
-                </div>
+            <div class="info-box" id="established-expanded-info-box">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td>AI generated covers</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td>Aspect ratio</td>
+                            <td>16:9</td>
+                        </tr>
+                        <tr>
+                            <td>Resolution</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </section>
     </main>
