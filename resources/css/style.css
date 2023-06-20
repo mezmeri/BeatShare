@@ -163,7 +163,6 @@ header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: #f2f2f2;
     padding-top: 1%;
     padding-left: 20%;
     padding-right: 20%;
@@ -344,7 +343,8 @@ nav ul li.highlightedItem a {
 
 .info-box {
     position: relative;
-    width: 100%;
+    width: 80%;
+    margin: auto;
     text-align: left;
 }
 
