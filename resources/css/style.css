@@ -417,10 +417,13 @@ nav ul li.highlightedItem a {
 
 #price-plan-options-calculator {
     display: grid;
-    gap: 5%;
-    margin: auto;
-    width: 70%;
-    grid-template-columns: repeat(4, auto);
+    justify-content: center;
+    width: 80%;
+    gap: 10px;
+    align-items: center;
+    margin: 0 auto;
+    grid-template-columns: repeat(4, 20%);
+    grid-column: 5, 10ch;
     border-radius: 5px;
     padding: 3%;
 }

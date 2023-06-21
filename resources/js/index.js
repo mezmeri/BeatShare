@@ -27,5 +27,10 @@ const showVideoLimitText = document.getElementById('show-video-limit');
 const videoLimitPrice = document.getElementById('video-limit-price');
 rangeLimitVideos.addEventListener('input', () => {
     showVideoLimitText.innerHTML = `${rangeLimitVideos.value} videos /month`;
-    videoLimitPrice.innerHTML = `$${((rangeLimitVideos.value) * 0.03).toFixed(2)}`;
+
+    if (rangeLimitVideos.value > 10) {
+        videoLimitPrice.innerHTML = `+ $${((rangeLimitVideos.value) * 0.029).toFixed(2)}`;
+    } else {
+        videoLimitPrice.innerHTML = `$${0.00}`;
+    }
 });
