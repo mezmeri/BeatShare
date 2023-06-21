@@ -341,15 +341,25 @@ nav ul li.highlightedItem a {
 
 }
 
-.info-box {
-    position: relative;
-    width: 80%;
-    margin: auto;
-    text-align: left;
+.price-card-body ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    color: white;
+    align-content: center;
+}
+
+.price-card-body li::before {
+    content: url(/resources/data/icons/check-white.svg);
+    color: white;
 }
 
 #starter-price-card {
     background-color: rgb(230, 230, 230);
+}
+
+.price-card-body li {
+    text-align: left;
 }
 
 table,
