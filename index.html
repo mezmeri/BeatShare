@@ -117,9 +117,15 @@
                         <h6>Starter</h6>
                     </div>
                     <div class="price-card-body">
-                        <h3>1.47$/mo</h3>
+                        <h3>$1.47/mo</h3>
                         <h5>Good for trying out, or the occassional design project.</h5>
-                        <button type="button" id="starter-card-button" class="btn btn-primary">Read more</button>
+                        <ul>
+                            <li>Feature #1</li>
+                            <li>Feature #2</li>
+                            <li>Feature #3</li>
+                            <li>Feature #4</li>
+                        </ul>
+                        <button type="button" id="starter-card-button" class="btn btn-primary">Choose plan</button>
                     </div>
                 </div>
                 <div class="price-card" id="established-price-card">
@@ -127,13 +133,33 @@
                         <h6>Established</h6>
                     </div>
                     <div class="price-card-body">
-                        <h3>7.33$/mo</h3>
+                        <h3>from $7.33/mo</h3>
                         <h5>Great for the established artist who wants all features.</h5>
                         <ul>
-                            <li>AI generated cover art</li>
+                            <li>Feature #1</li>
+                            <li>Feature #2</li>
+                            <li>Feature #3</li>
+                            <li>Feature #4</li>
                         </ul>
                         <button type="button" id="established-card-button" class="btn btn-light">Choose plan</button>
                     </div>
+                </div>
+            </div>
+
+            <div id="price-plan-options">
+                <h3>Design your plan</h3>
+                <div id="price-plan-options-calculator">
+
+                    <label for="render-range" class="form-label">Video rendering limit</label>
+                    <input type="range" class="form-range" id="render-range" min="10" max="35" step="0.00" value="10">
+                    <h6 id="show-video-limit">10 <span>videos /month</span></h6>
+                    <h5 id="video-limit-price"><span>$</span>0.00</h5>
+
+                    <label for="cover-art-range" class="form-label">AI generated cover art limit</label>
+                    <input type="range" class="form-range" id="cover-art-range" min="10" max="35" step="0.00"
+                        value="10">
+                    <h6 id="show-video-limit">15 <span>covers /month</span></h6>
+                    <h5><span>$</span>0.00</h5>
                 </div>
             </div>
         </section>

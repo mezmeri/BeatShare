@@ -21,3 +21,11 @@ establishedCardButton.addEventListener('click', () => {
     priceCard_starter.style.outline = '0px';
     priceCard_starter.style.outlineOffset = '0px';
 });
+
+const rangeLimitVideos = document.getElementById('render-range');
+const showVideoLimitText = document.getElementById('show-video-limit');
+const videoLimitPrice = document.getElementById('video-limit-price');
+rangeLimitVideos.addEventListener('input', () => {
+    showVideoLimitText.innerHTML = `${rangeLimitVideos.value} videos /month`;
+    videoLimitPrice.innerHTML = `$${((rangeLimitVideos.value) * 0.03).toFixed(2)}`;
+});

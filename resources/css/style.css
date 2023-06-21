@@ -38,10 +38,6 @@ ul {
     overflow: hidden;
 }
 
-li {
-    float: right;
-}
-
 li a {
     display: block;
     color: white;
@@ -312,7 +308,6 @@ nav ul li.highlightedItem a {
 
 .strip {
     width: 100%;
-    text-align: center;
 }
 
 .strip-header {
@@ -342,30 +337,27 @@ nav ul li.highlightedItem a {
 }
 
 .price-card-body ul {
+    position: relative;
+    text-align: left;
     list-style: none;
     margin: 0;
     padding: 0;
     color: white;
-    align-content: center;
+    margin-bottom: 4%;
 }
 
-.price-card-body li::before {
+#established-price-card li::before {
     content: url(/resources/data/icons/check-white.svg);
     color: white;
+    vertical-align: middle;
+}
+
+.price-card-body li {
+    font-size: 18px;
 }
 
 #starter-price-card {
     background-color: rgb(230, 230, 230);
-}
-
-.price-card-body li {
-    text-align: left;
-}
-
-table,
-th,
-td {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.158);
 }
 
 #starter-price-card h6 {
@@ -384,6 +376,15 @@ td {
     width: 100%;
     border-radius: 50px;
     font-weight: bold;
+}
+
+#starter-price-card li {
+    color: rgb(63, 63, 63);
+}
+
+#starter-price-card li::before {
+    content: url(/resources/data/icons/check-black.svg);
+    vertical-align: middle;
 }
 
 .price-card {
@@ -412,4 +413,26 @@ td {
     text-align: left;
     font-weight: 400;
     margin-bottom: 30px;
+}
+
+#price-plan-options-calculator {
+    display: grid;
+    gap: 5%;
+    margin: auto;
+    width: 70%;
+    grid-template-columns: repeat(4, auto);
+    border-radius: 5px;
+    padding: 3%;
+}
+
+#price-plan-options-calculator h5 {
+    text-align: right;
+}
+
+#price-plan-options {
+    text-align: center;
+}
+
+.form-label {
+    text-align: left;
 }
