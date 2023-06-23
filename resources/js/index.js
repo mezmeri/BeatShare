@@ -22,15 +22,15 @@ establishedCardButton.addEventListener('click', () => {
     priceCard_starter.style.outlineOffset = '0px';
 });
 
-const rangeLimitVideos = document.getElementById('render-range');
-const showVideoLimitText = document.getElementById('show-video-limit');
-const videoLimitPrice = document.getElementById('video-limit-price');
-rangeLimitVideos.addEventListener('input', () => {
-    showVideoLimitText.innerHTML = `${rangeLimitVideos.value} videos /month`;
+const imageLimitRange = document.getElementById('cover-art-range');
+const showImageLimitText = document.getElementById('show-video-limit');
+const imageLimitPrice = document.getElementById('video-limit-price');
+imageLimitRange.addEventListener('input', () => {
+    showImageLimitText.innerHTML = `${imageLimitRange.value} images /month`;
 
-    if (rangeLimitVideos.value > 10) {
-        videoLimitPrice.innerHTML = `+ $${((rangeLimitVideos.value) * 0.029).toFixed(2)}`;
+    if (imageLimitRange.value > 25) {
+        imageLimitPrice.innerHTML = `+ $${((imageLimitRange.value) * 0.005).toFixed(2)}`;
     } else {
-        videoLimitPrice.innerHTML = `$${0.00}`;
+        imageLimitPrice.innerHTML = `$${0.00}`;
     }
 });
