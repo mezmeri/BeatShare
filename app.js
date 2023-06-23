@@ -11,174 +11,23 @@ const ffmpeg = require('fluent-ffmpeg');
 const crypto = require('crypto');
 const PORT = process.env.PORT || 5500;
 const bodyParser = require('body-parser');
+const membership = require('./src/routes/membership');
+const generateVideo = require('./src/video/generate');
 
-app.use(express.static("resources"));
-app.use(express.static(__dirname + '/script.js'));
+app.use(express.static(path.normalize(__dirname + '/resources/css')));
+app.use(express.static(path.normalize(__dirname + '/resources/js')));
 app.use(fileUpload());
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
 
-app.post('/api/search', (req, res) => {
-    let query = req.body.result;
-
-    client.photos.search({ query, orientation: "square", size: "large", per_page: 4 }).then(result => {
-        res.json(result);
-
-    });
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
 });
 
-function generateFileNameUUID() {
-    return new Promise((resolve, reject) => {
-        const fileName = `${crypto.randomUUID()}`;
-        if (fileName) {
-            resolve(fileName);
-        } else {
-            reject('File name could not be generated. Please try again.');
-        }
-    });
-}
 
-async function downloadImage(url) {
-    try {
-        const response = await axios.get(url, { responseType: 'arraybuffer' });
-        const imageBuffer = Buffer.from(response.data, 'binary');
 
-        let fileName = await generateFileNameUUID();
-        const filePath = path.normalize(__dirname + '/tmp/' + fileName + '.jpg');
-        fs.writeFileSync(filePath, imageBuffer);
-
-        return filePath;
-    } catch (error) {
-        console.error(error);
-    }
-}
-
-async function downloadAudio(file) {
-    const filePath = path.normalize(__dirname + '/tmp/' + file.name);
-    file.mv(filePath, (err) => {
-        if (err) return res.status(500).send(err);
-    });
-
-    return filePath;
-}
-
-// Handle the incoming audio and picture.
-app.post('/video', async (req, res) => {
-    const image = await downloadImage(req.body.picture_data);
-    const audio = await downloadAudio(req.files.beatFile);
-    const audioDuration = await getAudioDuration(audio);
-    const overlay = await renderOverlay(1920, 1080, Math.round(audioDuration));
-
-    await createVideo(audio, image, overlay).then(id => {
-        res.json({ videoId: id });
-    });
-});
-
-app.get('/video/:videoId', (req, res) => {
-    const { videoId } = req.params;
-    const videoPath = path.normalize(__dirname + '/tmp/' + videoId + '.mp4');
-    res.setHeader('Content-Type', 'video/mp4');
-    res.setHeader('Content-Length', fs.statSync(videoPath).size);
-
-    const stream = fs.createReadStream(videoPath);
-    stream.pipe(res);
-});
-
-function getAudioDuration(filePath) {
-    return new Promise((resolve, reject) => {
-        ffmpeg.ffprobe(filePath, (err, metadata) => {
-            if (err) {
-                reject(err);
-            } else {
-                let duration = metadata.format.duration;
-                resolve(duration);
-            }
-        });
-    });
-}
-
-function renderOverlay(width, height, duration) {
-    return new Promise(async (resolve, reject) => {
-        const fileName = await generateFileNameUUID();
-        const filePath = path.normalize(__dirname + '/tmp/' + fileName + '.mp4');
-        ffmpeg()
-            .on('start', () => { console.log('Overlay is being rendered.'); })
-            .input('color=c=black:s=' + `'${width}'` + 'x' + `'${height}'`)
-            .inputOptions('-f lavfi')
-            .outputOptions('-t ' + duration)
-            .output(filePath)
-            .on('error', (err) => {
-                console.error('An error occured while rendering the video:', err);
-                reject('Overlay upload failed. Operation rejected.');
-            })
-            .on('end', () => {
-                console.log('Overlay was succesfully rendered.');
-                resolve(filePath);
-            })
-            .run();
-    });
-}
-
-function createVideo(audio, image, overlay) {
-    return new Promise(async (resolve, reject) => {
-        const fileName = await generateFileNameUUID();
-        const filePath = path.normalize(__dirname + '/tmp/' + fileName + '.mp4');
-
-        ffmpeg()
-            .on('start', () => {
-                console.log('Final upload has started.');
-            })
-            .on('error', function (err, stdout, stderr) {
-                console.log('Cannot process video: ' + err.message);
-                reject();
-            })
-            .addInput(overlay)
-            .addInput(audio)
-            .addInput(image)
-            .complexFilter([
-                {
-                    filter: 'scale',
-                    inputs: '[2:v]',
-                    options: 'iw*0.9:ih*0.9',
-                    outputs: '[img]'
-                },
-                {
-                    filter: 'scale',
-                    inputs: '[0:v]',
-                    options: 'w=1920:h=1080',
-                    outputs: '[overlay]'
-                },
-                {
-                    filter: 'overlay',
-                    inputs: '[overlay][img]',
-                    options: '(main_w-overlay_w)/2:(main_h-overlay_h)/2'
-                }
-            ])
-            .output(filePath)
-            .on('end', () => {
-                try {
-                    fs.unlinkSync(audio);
-                    fs.unlinkSync(image);
-                    fs.unlinkSync(overlay);
-                    console.log('Final upload finished!');
-                    resolve(fileName);
-                } catch (error) {
-                    console.log(error);
-                }
-            })
-            .run();
-    });
-}
-
-// app.get('/video', async (req, res) => {
-//     const videoPath = path.normalize(__dirname + '/tmp/' + 'finalvideo.mp4');
-
-//     res.setHeader('Content-Type', 'video/mp4');
-//     res.setHeader('Content-Length', fs.statSync(videoPath).size);
-
-//     const stream = fs.createReadStream(videoPath);
-//     stream.pipe(res);
-// });
+membership.setupMembershipRoutes(app);
+generateVideo.generate(app);
 
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
