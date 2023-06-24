@@ -1,4 +1,4 @@
-function generate (app) {
+function generate(app) {
     app.post('/api/search', (req, res) => {
         let query = req.body.result;
 
@@ -8,7 +8,7 @@ function generate (app) {
         });
     });
 
-    function generateFileNameUUID () {
+    function generateFileNameUUID() {
         return new Promise((resolve, reject) => {
             const fileName = `${crypto.randomUUID()}`;
             if (fileName) {
@@ -19,7 +19,7 @@ function generate (app) {
         });
     }
 
-    async function downloadImage (url) {
+    async function downloadImage(url) {
         try {
             const response = await axios.get(url, { responseType: 'arraybuffer' });
             const imageBuffer = Buffer.from(response.data, 'binary');
@@ -34,7 +34,7 @@ function generate (app) {
         }
     }
 
-    async function downloadAudio (file) {
+    async function downloadAudio(file) {
         const filePath = path.normalize(__dirname + '/tmp/' + file.name);
         file.mv(filePath, (err) => {
             if (err) return res.status(500).send(err);
@@ -65,7 +65,7 @@ function generate (app) {
         stream.pipe(res);
     });
 
-    function getAudioDuration (filePath) {
+    function getAudioDuration(filePath) {
         return new Promise((resolve, reject) => {
             ffmpeg.ffprobe(filePath, (err, metadata) => {
                 if (err) {
@@ -78,7 +78,7 @@ function generate (app) {
         });
     }
 
-    function renderOverlay (width, height, duration) {
+    function renderOverlay(width, height, duration) {
         return new Promise(async (resolve, reject) => {
             const fileName = await generateFileNameUUID();
             const filePath = path.normalize(__dirname + '/tmp/' + fileName + '.mp4');
@@ -100,7 +100,7 @@ function generate (app) {
         });
     }
 
-    function createVideo (audio, image, overlay) {
+    function createVideo(audio, image, overlay) {
         return new Promise(async (resolve, reject) => {
             const fileName = await generateFileNameUUID();
             const filePath = path.normalize(__dirname + '/tmp/' + fileName + '.mp4');

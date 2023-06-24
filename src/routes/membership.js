@@ -1,4 +1,4 @@
-function setupMembershipRoutes (app) {
+function setupMembershipRoutes(app) {
     app.post('/login', (req, res) => {
         res.send(`You're logged in!`);
     });

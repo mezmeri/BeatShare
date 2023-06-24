@@ -347,7 +347,7 @@ nav ul li.highlightedItem a {
 }
 
 #established-price-card li::before {
-    content: url(/resources/data/icons/check-white.svg);
+    content: url(../data/icons/check-white.svg);
     color: white;
     vertical-align: middle;
 }
@@ -383,7 +383,7 @@ nav ul li.highlightedItem a {
 }
 
 #starter-price-card li::before {
-    content: url(/resources/data/icons/check-black.svg);
+    content: url(../data/icons/check-black.svg);
     vertical-align: middle;
 }
 
