@@ -14,6 +14,7 @@ const PORT = process.env.PORT || 5500;
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = process.env.DB_TOKEN;
 const bcrypt = require('bcrypt');
+const validator = require('validator');
 
 app.use(express.static(__dirname + '/resources/pages/'));
 app.use(express.static(path.join(__dirname, 'resources')));
@@ -33,25 +34,23 @@ const client = new MongoClient(uri, {
 
 async function sendToDatabase(username, password, email) {
     try {
-        await client.connect();
-        let database = client.db('accounts');
-        let collection = database.collection('user_info');
+        console.log(username, password, email);
+        // await client.connect();
+        // let database = client.db('accounts');
+        // let collection = database.collection('user_info');
 
-        const existingUser = await collection.findOne({ username: `${username}` });
-        const existingEmail = await collection.findOne({ email: `${email}` });
+        // const existingUser = await collection.findOne({
+        //     $or: [{ username: username }, { email: email }]
+        // });
 
         if (existingUser) {
-            console.log('User already exists!');
-        }
-
-        if (existingEmail) {
-            console.log('Email already exists!');
+            console.log(`Username or email already exists! We can't tell you which one due to safety reasons.`);
         }
 
         const newUser = {
-            username: `${username}`,
-            password: `${password}`,
-            email: `${email}`
+            username: username,
+            password: password,
+            email: email
         };
 
     } catch (err) {
@@ -63,10 +62,33 @@ async function sendToDatabase(username, password, email) {
 
 app.post('/register', async (req, res) => {
     try {
-        const username = req.body.username;
-        const hashedPassword = await bcrypt.hash(req.body.password, 10);
-        const email = req.body.email;
-        sendToDatabase(username, hashedPassword, email);
+        let { username, email, password } = req.body;
+
+        const minLengthPassword = 8;
+        const maxLengthPassword = 12;
+        if (password.length < minLengthPassword || password.length > maxLengthPassword) {
+            return res.status(400).send(`Password must be between ${minLengthPassword} and 12 characters long. Yours is currently ${password.length}.`);
+        } else {
+            password = await bcrypt.hash(password, 10);
+        }
+
+        const checkEmail = validator.isEmail(email);
+        if (!checkEmail) {
+            return res.status(400).send(`Email is not valid. Did you remember to add a domain? (.com)`);
+        } else {
+            email = validator.normalizeEmail(email);
+            email = validator.trim(email);
+        }
+
+        const checkUsername = validator.isAlphanumeric(username);
+        if (!checkUsername) {
+            return res.status(400).send(`The username ${username} contains symbols/characters, which are not allowed. Please remove them.`);
+        } else {
+            username = validator.trim(username);
+        }
+
+        sendToDatabase(username, password, email);
+
     } catch (error) {
         console.log('ERROR! ', error);
     }
