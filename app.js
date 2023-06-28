@@ -3,18 +3,15 @@ const express = require('express');
 const app = express();
 const fileUpload = require('express-fileupload');
 const cors = require('cors');
-const pexels = require('pexels');
-const pexelsClient = pexels.createClient('jZQuDCMfH0C4SXBUWbVhLFydTZkMR2Lsj2B7b3xnxkX65PgkTLxDQPH0');
-const fs = require('fs');
-const axios = require('axios');
+const pexels = require('pexels').createClient('jZQuDCMfH0C4SXBUWbVhLFydTZkMR2Lsj2B7b3xnxkX65PgkTLxDQPH0');
 const path = require('path');
-const ffmpeg = require('fluent-ffmpeg');
-const crypto = require('crypto');
+const fs = require('fs');
 const PORT = process.env.PORT || 5500;
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = process.env.DB_TOKEN;
 const bcrypt = require('bcrypt');
 const validator = require('validator');
+const generate = require('./src/video/generate.js');
 
 app.use(express.static(__dirname + '/resources/pages/'));
 app.use(express.static(path.join(__dirname, 'resources')));
@@ -23,6 +20,37 @@ app.use(fileUpload());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+app.post('/api/search', (req, res) => {
+    let query = req.body.result;
+
+    pexels.photos.search({ query, orientation: "square", size: "large", per_page: 4 }).then(result => {
+        res.json(result);
+
+    });
+});
+
+app.post('/video', async (req, res) => {
+    const image = await generate.downloadImage(req.body.picture_data);
+    const audio = await generate.downloadAudio(req.files.beatFile);
+    const audioDuration = await generate.getAudioDuration(audio);
+    const overlay = await generate.renderOverlay(1920, 1080, Math.round(audioDuration));
+
+    await generate.createVideo(audio, image, overlay).then(id => {
+        res.json({ videoId: id });
+    });
+});
+
+app.get('/video/:videoId', (req, res) => {
+    const { videoId } = req.params;
+    const videoPath = path.normalize(__dirname + '/tmp/' + videoId + '.mp4');
+    res.setHeader('Content-Type', 'video/mp4');
+    res.setHeader('Content-Length', fs.statSync(videoPath).size);
+
+    const stream = fs.createReadStream(videoPath);
+    stream.pipe(res);
+});
+
 
 const client = new MongoClient(uri, {
     serverApi: {
