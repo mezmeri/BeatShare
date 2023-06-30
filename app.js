@@ -51,7 +51,6 @@ app.get('/video/:videoId', (req, res) => {
     stream.pipe(res);
 });
 
-
 const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
