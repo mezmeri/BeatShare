@@ -6,7 +6,7 @@ const path = require('path');
 const ffmpeg = require('fluent-ffmpeg');
 const crypto = require('crypto');
 
-function generateFileNameUUID() {
+function generateFileNameUUID () {
     return new Promise((resolve, reject) => {
         const fileName = `${crypto.randomUUID()}`;
         if (fileName) {
@@ -17,7 +17,7 @@ function generateFileNameUUID() {
     });
 }
 
-async function downloadImage(url) {
+async function downloadImage (url) {
     try {
         const response = await axios.get(url, { responseType: 'arraybuffer' });
         const imageBuffer = Buffer.from(response.data, 'binary');
@@ -33,7 +33,7 @@ async function downloadImage(url) {
 }
 
 
-async function downloadAudio(file) {
+async function downloadAudio (file) {
     const filePath = path.normalize(__dirname + '/tmp/' + file.name);
     file.mv(filePath, (err) => {
         if (err) return res.status(500).send(err);
@@ -42,7 +42,7 @@ async function downloadAudio(file) {
     return filePath;
 }
 
-function getAudioDuration(filePath) {
+function getAudioDuration (filePath) {
     return new Promise((resolve, reject) => {
         ffmpeg.ffprobe(filePath, (err, metadata) => {
             if (err) {
@@ -55,7 +55,7 @@ function getAudioDuration(filePath) {
     });
 }
 
-function renderOverlay(width, height, duration) {
+function renderOverlay (width, height, duration) {
     return new Promise(async (resolve, reject) => {
         const fileName = await generateFileNameUUID();
         const filePath = path.normalize(__dirname + '/tmp/' + fileName + '.mp4');
@@ -77,7 +77,7 @@ function renderOverlay(width, height, duration) {
     });
 }
 
-function createVideo(audio, image, overlay) {
+function createVideo (audio, image, overlay) {
     return new Promise(async (resolve, reject) => {
         const fileName = await generateFileNameUUID();
         const filePath = path.normalize(__dirname + '/tmp/' + fileName + '.mp4');

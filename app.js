@@ -1,9 +1,10 @@
+// npm
 require('dotenv').config();
 const express = require('express');
 const app = express();
 const fileUpload = require('express-fileupload');
 const cors = require('cors');
-const pexels = require('pexels').createClient('jZQuDCMfH0C4SXBUWbVhLFydTZkMR2Lsj2B7b3xnxkX65PgkTLxDQPH0');
+const pexels = require('pexels').createClient(process.env.PEXEL_TOKEN);
 const path = require('path');
 const fs = require('fs');
 const PORT = process.env.PORT || 5500;
@@ -11,6 +12,8 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = process.env.DB_TOKEN;
 const bcrypt = require('bcrypt');
 const validator = require('validator');
+
+// Modules
 const generate = require('./src/video/generate.js');
 
 app.use(express.static(__dirname + '/resources/pages/'));
@@ -59,9 +62,13 @@ const client = new MongoClient(uri, {
     }
 });
 
-async function sendToDatabase(username, password, email) {
+async function sendToDatabase (username, password, email) {
     try {
-        console.log(username, password, email);
+        console.log({
+            username: username,
+            email: email,
+            password: password
+        });
         // await client.connect();
         // let database = client.db('accounts');
         // let collection = database.collection('user_info');
@@ -115,17 +122,17 @@ app.post('/register', async (req, res) => {
         }
 
         sendToDatabase(username, password, email);
+        res.status(200).send('You have successfully created a new user!');
 
     } catch (error) {
         console.log('ERROR! ', error);
     }
 });
 
-app.post('/login', async (req, res) => {
+app.post('/login', (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-
 });
 
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
