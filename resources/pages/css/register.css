@@ -1,0 +1,26 @@
+.form-label {
+    display: block;
+    margin: auto;
+    margin-bottom: 10px;
+}
+
+#register-container {
+    background-color: rgb(255, 255, 255);
+    margin: auto;
+    padding: 3ch;
+    border-radius: 10px;
+    width: 25%;
+}
+
+#header {
+    margin: auto;
+    width: fit-content;
+    margin-top: 3ch;
+    margin-bottom: 3ch;
+}
+
+#register-account {
+    margin: auto;
+    width: 100%;
+    margin-top: 2ch;
+}

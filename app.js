@@ -62,13 +62,8 @@ const client = new MongoClient(uri, {
     }
 });
 
-async function sendToDatabase(username, password, email) {
+async function sendToDatabase (username, password, email) {
     try {
-        console.log({
-            username: username,
-            email: email,
-            password: password
-        });
         // await client.connect();
         // let database = client.db('accounts');
         // let collection = database.collection('user_info');
@@ -78,7 +73,7 @@ async function sendToDatabase(username, password, email) {
         // });
 
         if (existingUser) {
-            console.log(`Username or email already exists! We can't tell you which one due to safety reasons.`);
+            res.status(400).send(`Username or email is already registered.`);
         }
 
         const newUser = {
@@ -96,7 +91,13 @@ async function sendToDatabase(username, password, email) {
 
 app.post('/register', async (req, res) => {
     try {
-        let { username, email, password } = req.body;
+        let { username, email, password, reenter_password } = req.body;
+
+        console.log(req.body);
+
+        if (password !== reenter_password) {
+            res.status(400).send(`The passwords do not match. Please try again.`);
+        }
 
         const minLengthPassword = 8;
         if (password.length < minLengthPassword) {
@@ -104,6 +105,7 @@ app.post('/register', async (req, res) => {
         } else {
             password = await bcrypt.hash(password, 10);
         }
+
 
         const checkEmail = validator.isEmail(email);
         if (!checkEmail) {
