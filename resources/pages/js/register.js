@@ -33,13 +33,13 @@ form.addEventListener('submit', async (event) => {
         .catch(err => console.error('something went wrong', err));
 });
 
-function createAlert (alert, message) {
+function createAlert(alert, message) {
     if (alert === "error") {
         errorDiv = document.createElement('div');
         errorDiv.className = "alert alert-danger";
         errorDiv.role = "alert";
         errorDiv.textContent = message;
-        errorDiv.clientWidth = 40;
+        errorDiv.style.width = '50%';
 
         form.insertAdjacentElement('beforebegin', errorDiv);
     }
@@ -49,7 +49,9 @@ function createAlert (alert, message) {
         successDiv.className = "alert alert-success";
         successDiv.role = "alert";
         successDiv.textContent = message;
+        successDiv.style.width = '50%';
         form.reset();
+
         form.insertAdjacentElement('beforebegin', successDiv);
     }
 }

@@ -62,7 +62,7 @@ const client = new MongoClient(uri, {
     }
 });
 
-async function sendToDatabase (username, password, email) {
+async function sendToDatabase(username, password, email) {
     try {
         console.log({
             username: username,
@@ -99,9 +99,8 @@ app.post('/register', async (req, res) => {
         let { username, email, password } = req.body;
 
         const minLengthPassword = 8;
-        const maxLengthPassword = 12;
-        if (password.length < minLengthPassword || password.length > maxLengthPassword) {
-            return res.status(400).send(`Password must be between ${minLengthPassword} and 12 characters long. Yours is currently ${password.length}.`);
+        if (password.length < minLengthPassword) {
+            return res.status(400).send(`Password must be at least ${minLengthPassword} characters long. Yours is currently only ${password.length} characters.`);
         } else {
             password = await bcrypt.hash(password, 10);
         }
