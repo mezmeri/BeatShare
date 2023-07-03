@@ -24,7 +24,7 @@
                     aria-labelledby="passwordHelpBlock" required>
             </label>
 
-            <label for="reenter-password" class="form-label">Re-enter password
+            <label for="reenter_password" class="form-label">Re-enter password
                 <input type="password" name="reenter_password" id="reenter_password" class="form-control"
                     aria-labelledby="passwordHelpBlock" required>
             </label>
@@ -32,7 +32,22 @@
             <label for="email" class="form-label"> Email
                 <input type="email" name="email" id="email" class="form-control" required>
             </label>
-            <button type="submit" class="btn btn-primary" id="register-account">Register</button>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="terms-and-conditions-checkbox" required>
+                <label class="form-check-label" for="terms-and-conditions-checkbox">
+                    I have read and accept the terms and conditions.
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="newsletter-checkbox">
+                <label class="form-check-label" for="newsletter-checkbox">
+                    I would like to receive the BeatShare newsletter, get updates and discount offers.
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="register-account-button">Register</button>
         </form>
     </div>
 </body>

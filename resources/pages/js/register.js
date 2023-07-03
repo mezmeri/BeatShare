@@ -1,10 +1,12 @@
 
 
 const form = document.getElementById('registerForm');
+const registerAccountButton = document.getElementById('register-account-button');
 let errorDiv = null;
 let successDiv = null;
 form.addEventListener('submit', async (event) => {
     event.preventDefault();
+    registerAccountButton.disable;
 
     if (errorDiv) {
         errorDiv.remove();
