@@ -16,9 +16,10 @@
     <h1 id="header">Register</h1>
     <div id="register-container">
         <form action="/register" method="POST" id="registerForm">
-            <label for="username" class="form-label"> Username
-                <input type="text" class="form-control" name="username" id="username" required>
+            <label for="email" class="form-label"> Email
+                <input type="email" name="email" id="email" class="form-control" required>
             </label>
+
             <label for="password" class="form-label"> Password
                 <input type="password" name="password" id="password" class="form-control"
                     aria-labelledby="passwordHelpBlock" required>
@@ -29,9 +30,6 @@
                     aria-labelledby="passwordHelpBlock" required>
             </label>
 
-            <label for="email" class="form-label"> Email
-                <input type="email" name="email" id="email" class="form-control" required>
-            </label>
 
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" value="" id="terms-and-conditions-checkbox" required>
@@ -46,6 +44,8 @@
                     I would like to receive the BeatShare newsletter, get updates and discount offers.
                 </label>
             </div>
+
+            <input type="hidden" name="_csrf" value="{}">
 
             <button type="submit" class="btn btn-primary" id="register-account-button">Register</button>
         </form>

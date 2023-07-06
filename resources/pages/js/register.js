@@ -1,12 +1,10 @@
-
-
 const form = document.getElementById('registerForm');
 const registerAccountButton = document.getElementById('register-account-button');
 let errorDiv = null;
 let successDiv = null;
 form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    registerAccountButton.disable;
+    registerAccountButton.disabled = true;
 
     if (errorDiv) {
         errorDiv.remove();
@@ -36,6 +34,7 @@ form.addEventListener('submit', async (event) => {
 });
 
 function createAlert (alert, message) {
+    registerAccountButton.disabled = false;
     if (alert === "error") {
         errorDiv = document.createElement('div');
         errorDiv.className = "alert alert-danger";

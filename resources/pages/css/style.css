@@ -141,6 +141,10 @@ li a {
     background-color: var(--stdPurpleColor);
 }
 
+.btn-primary:disabled {
+    background-color: var(--stdPurpleColor);
+}
+
 .btn-light {
     color: var(--stdPurpleColor);
     font-weight: bold;

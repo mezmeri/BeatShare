@@ -1,4 +1,3 @@
-// npm
 require('dotenv').config();
 const express = require('express');
 const app = express();
@@ -12,6 +11,7 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = process.env.DB_TOKEN;
 const bcrypt = require('bcrypt');
 const validator = require('validator');
+const crypto = require('crypto');
 
 // Modules
 const generate = require('./src/video/generate.js');
@@ -23,6 +23,14 @@ app.use(fileUpload());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+const client = new MongoClient(uri, {
+    serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+    }
+});
 
 app.post('/api/search', (req, res) => {
     let query = req.body.result;
@@ -54,58 +62,52 @@ app.get('/video/:videoId', (req, res) => {
     stream.pipe(res);
 });
 
-const client = new MongoClient(uri, {
-    serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-    }
-});
-
-async function sendToDatabase (username, password, email) {
+const sendToDatabase = async (email, password) => {
     try {
-        // await client.connect();
-        // let database = client.db('accounts');
-        // let collection = database.collection('user_info');
-
-        // const existingUser = await collection.findOne({
-        //     $or: [{ username: username }, { email: email }]
-        // });
-
-        if (existingUser) {
-            res.status(400).send(`Username or email is already registered.`);
-        }
+        let database = client.db('accounts');
+        let collection = database.collection('user_info');
 
         const newUser = {
-            username: username,
-            password: password,
-            email: email
+            email: email,
+            password: password
         };
+
+        return collection.insertOne(newUser);
 
     } catch (err) {
         console.error(err);
-    } finally {
-        await client.close();
     }
-}
+};
+
+const doesUserExist = function (email) {
+    return new Promise(async (resolve, reject) => {
+        let database = client.db('accounts');
+        let collection = database.collection('user_info');
+        const existingUser = await collection.findOne({ "email": email });
+
+        if (existingUser) {
+            resolve(true);
+        } else {
+            resolve(false);
+        }
+    });
+};
 
 app.post('/register', async (req, res) => {
     try {
-        let { username, email, password, reenter_password } = req.body;
-
-        console.log(req.body);
+        client.connect();
+        let { email, password, reenter_password } = req.body;
 
         if (password !== reenter_password) {
-            res.status(400).send(`The passwords do not match. Please try again.`);
+            return res.status(400).send(`The passwords do not match. Please try again.`);
         }
 
         const minLengthPassword = 8;
         if (password.length < minLengthPassword) {
-            return res.status(400).send(`Password must be at least ${minLengthPassword} characters long. Yours is currently only ${password.length} characters.`);
+            return res.status(400).send(`Passwords must be at least ${minLengthPassword} characters long. Yours is currently only ${password.length} characters.`);
         } else {
             password = await bcrypt.hash(password, 10);
         }
-
 
         const checkEmail = validator.isEmail(email);
         if (!checkEmail) {
@@ -115,15 +117,16 @@ app.post('/register', async (req, res) => {
             email = validator.trim(email);
         }
 
-        const checkUsername = validator.isAlphanumeric(username);
-        if (!checkUsername) {
-            return res.status(400).send(`The username ${username} contains symbols/characters, which are not allowed. Please remove them.`);
-        } else {
-            username = validator.trim(username);
-        }
-
-        sendToDatabase(username, password, email);
-        res.status(200).send('You have successfully created a new user!');
+        await doesUserExist(email).then(async response => {
+            if (response === false) {
+                let result = await sendToDatabase(email, password);
+                if (result.acknowledged) {
+                    res.status(200).send('You have succesfully created a BeatShare account. An activation email has been sent to you.');
+                }
+            } else {
+                res.status(400).send('Email already in use.');
+            }
+        });
 
     } catch (error) {
         console.log('ERROR! ', error);
