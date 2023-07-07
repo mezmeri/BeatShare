@@ -72,7 +72,7 @@ const searchForPicturesAPI = async (input) => {
         );
 };
 
-function highlightSelectedImage(source) {
+function highlightSelectedImage (source) {
     const videoPreviewSection = document.getElementById('videoPreviewSection');
     let image = document.createElement('img');
     image.src = source;
@@ -98,7 +98,7 @@ pictureSearchResults.addEventListener('click', function (event) {
     }
 });
 
-function getSelectedImage(url) {
+function getSelectedImage (url) {
     urlArray = [url];
 
     if (urlArray.length > 0) {
@@ -114,7 +114,7 @@ function getSelectedImage(url) {
     });
 }
 
-function createSpinner() {
+function createSpinner () {
     const videoPreviewSection = document.getElementById('videoPreviewSection');
     const div = document.createElement('div');
     div.id = 'spinner';
@@ -127,7 +127,7 @@ function createSpinner() {
     videoPreviewSection.appendChild(div);
 }
 
-async function sendDataToBackend(source) {
+async function sendDataToBackend (source) {
     const formData = new FormData();
     const fileInput = document.getElementById('upload-beat-input');
     formData.append('picture_data', source);
@@ -157,7 +157,7 @@ async function sendDataToBackend(source) {
         });
 };
 
-async function retrieveVideoFromBackend(videoId) {
+async function retrieveVideoFromBackend (videoId) {
     const videoSource = `http://localhost:5500/video/${videoId}`;
     await fetch(videoSource)
         .then((response) => {

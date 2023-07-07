@@ -1,10 +1,10 @@
-const pexels = require('pexels');
-const client = pexels.createClient('jZQuDCMfH0C4SXBUWbVhLFydTZkMR2Lsj2B7b3xnxkX65PgkTLxDQPH0');
 const fs = require('fs');
 const axios = require('axios');
 const path = require('path');
 const ffmpeg = require('fluent-ffmpeg');
 const crypto = require('crypto');
+
+const router = require('express').Router();
 
 function generateFileNameUUID () {
     return new Promise((resolve, reject) => {
